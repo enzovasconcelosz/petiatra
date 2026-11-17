@@ -1,0 +1,658 @@
+<title>Apresentação Petiatra</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: palco 16:9 que escala com a janela; no modo estudo, painel de notas ao lado (embaixo no celular). */
+:root {
+  --bg: #eef4f3;
+  --surface: #ffffff;
+  --ink: #13201f;
+  --muted: #51625f;
+  --line: #d3e0dd;
+  --brand: #0f766e;
+  --brand-ink: #ffffff;
+  --brand-soft: #e1f1ee;
+  --accent-ink: #334155;
+  --paper: #ffffff;
+  --ok: #15803d;
+  --over: #b91c1c;
+  --overlay: rgba(10, 20, 19, 0.82);
+  --logo-light: block;
+  --logo-dark: none;
+  --display: "Fredoka", "Nunito", "Segoe UI", system-ui, sans-serif;
+  --text: "Inter", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0c1413; --surface: #14201f; --ink: #e6efed; --muted: #9fb3af; --line: #26403c;
+    --brand: #2bb3a3; --brand-ink: #03201c; --brand-soft: #12332f; --accent-ink: #cbd5e1;
+    --ok: #4ade80; --over: #f87171; --overlay: rgba(0, 0, 0, 0.86);
+    --logo-light: none; --logo-dark: block; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0c1413; --surface: #14201f; --ink: #e6efed; --muted: #9fb3af; --line: #26403c;
+  --brand: #2bb3a3; --brand-ink: #03201c; --brand-soft: #12332f; --accent-ink: #cbd5e1;
+  --ok: #4ade80; --over: #f87171; --overlay: rgba(0, 0, 0, 0.86);
+  --logo-light: none; --logo-dark: block; color-scheme: dark;
+}
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--text);
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 0 16px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+button { font: inherit; color: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
+/* barra superior */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; padding-block: 12px;
+}
+.marca { display: flex; align-items: center; gap: 8px; font-family: var(--display); font-weight: 600; font-size: 18px; margin-right: auto; }
+.marca img { width: 28px; height: 28px; }
+.marca small { font-family: var(--text); font-weight: 500; font-size: 13px; color: var(--muted); }
+.contador { font-variant-numeric: tabular-nums; color: var(--muted); font-size: 14px; }
+.btn {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 10px;
+  padding: 8px 14px; font-weight: 500; font-size: 14px; display: inline-flex; align-items: center; gap: 8px;
+}
+.btn:hover { border-color: var(--brand); }
+.btn-estudo { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 600; }
+.btn-estudo[aria-pressed="true"] { background: var(--brand-soft); color: var(--ink); }
+.btn svg { width: 16px; height: 16px; }
+
+/* área principal */
+.app { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
+.app.estudo { grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); }
+@media (max-width: 960px) { .app.estudo { grid-template-columns: minmax(0, 1fr); } }
+.palco-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; min-width: 0; }
+.palco {
+  width: min(100%, calc((100dvh - 150px - env(safe-area-inset-top, 0px)) * 16 / 9));
+  aspect-ratio: 16 / 9; max-width: 100%; container-type: inline-size; position: relative;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+}
+
+/* slides (tamanhos em cqi: acompanham a largura do palco) */
+.slide { position: absolute; inset: 0; padding: 4.6cqi 5.6cqi; display: none; flex-direction: column; gap: 2cqi; }
+.slide.ativo { display: flex; }
+.slide h2 { font-family: var(--display); font-weight: 600; font-size: 4cqi; line-height: 1.1; margin: 0; text-wrap: balance; }
+.slide p, .slide li { font-size: 1.9cqi; line-height: 1.45; margin: 0; }
+.slide ul, .slide ol { margin: 0; padding-left: 2.4cqi; display: flex; flex-direction: column; gap: 0.9cqi; }
+.rotulo { font-size: 1.35cqi; letter-spacing: 0.12em; text-transform: uppercase; color: var(--brand); font-weight: 600; }
+.sub { color: var(--muted); }
+code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 0.92em; background: var(--brand-soft); padding: 0.1em 0.35em; border-radius: 0.3em; }
+.colunas { display: grid; grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); gap: 3cqi; flex: 1; min-height: 0; }
+.lado { display: flex; flex-direction: column; gap: 1.4cqi; min-width: 0; min-height: 0; }
+.lado p, .lado li { font-size: 1.6cqi; line-height: 1.4; }
+.lado ul, .lado ol { gap: 0.7cqi; }
+.fig {
+  background: var(--paper); border: 1px solid var(--line); border-radius: 1.2cqi; padding: 1.2cqi;
+  display: flex; align-items: center; justify-content: center; min-height: 0; min-width: 0; height: 100%; cursor: zoom-in; position: relative;
+}
+.fig img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.fig .lupa { position: absolute; right: 1cqi; bottom: 1cqi; font-size: 1.3cqi; background: var(--brand); color: var(--brand-ink); padding: 0.3cqi 0.8cqi; border-radius: 0.6cqi; }
+.cartoes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2cqi; }
+.cartao { border: 1px solid var(--line); border-radius: 1.4cqi; padding: 2cqi; display: flex; flex-direction: column; gap: 0.8cqi; background: var(--bg); }
+.cartao strong { font-family: var(--display); font-size: 2.2cqi; font-weight: 600; }
+.cartao span { font-size: 1.6cqi; color: var(--muted); line-height: 1.4; }
+.destaque { border-left: 0.5cqi solid var(--brand); padding: 1.2cqi 1.8cqi; background: var(--brand-soft); border-radius: 0 1cqi 1cqi 0; }
+
+/* capa */
+.capa { justify-content: center; align-items: center; text-align: center; gap: 2.6cqi; }
+.capa .logo { width: 46cqi; }
+.capa .logo.claro { display: var(--logo-light); }
+.capa .logo.escuro { display: var(--logo-dark); }
+.capa .titulo { font-family: var(--display); font-size: 3cqi; font-weight: 500; }
+.capa .meta { font-size: 1.7cqi; color: var(--muted); }
+
+/* tecnologias */
+.stack { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.6cqi; }
+.stack div { border: 1px solid var(--line); border-radius: 1.2cqi; padding: 1.6cqi; display: flex; flex-direction: column; gap: 0.5cqi; }
+.stack b { font-family: var(--display); font-weight: 600; font-size: 2.1cqi; }
+.stack small { font-size: 1.45cqi; color: var(--muted); line-height: 1.35; }
+.stack .forte { background: var(--brand-soft); border-color: var(--brand); }
+
+/* requisitos */
+.numeros { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2cqi; }
+.numeros div { display: flex; align-items: baseline; gap: 1.2cqi; }
+.numeros b { font-family: var(--display); font-size: 7cqi; color: var(--brand); line-height: 1; font-variant-numeric: tabular-nums; }
+.numeros span { font-size: 1.8cqi; color: var(--muted); }
+.regras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6cqi; }
+.regra { border: 1px solid var(--line); border-radius: 1.2cqi; padding: 1.4cqi; display: flex; flex-direction: column; gap: 0.6cqi; }
+.tag { align-self: flex-start; font-size: 1.3cqi; font-weight: 600; color: var(--brand-ink); background: var(--brand); padding: 0.25cqi 0.8cqi; border-radius: 0.6cqi; }
+.regra p { font-size: 1.65cqi; }
+
+/* perfis */
+.perfis { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 2.4cqi; flex: 1; min-height: 0; }
+.perfil li { font-size: 1.75cqi; }
+.perfil { border: 1px solid var(--line); border-radius: 1.4cqi; padding: 2.2cqi; display: flex; flex-direction: column; gap: 1.2cqi; }
+.perfil h3 { font-family: var(--display); font-weight: 600; font-size: 2.5cqi; margin: 0; }
+.kbd { font-family: ui-monospace, Consolas, monospace; font-size: 0.9em; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 0.4em; padding: 0 0.35em; background: var(--surface); }
+
+/* sequência */
+.dupla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: minmax(0, 1fr); gap: 2cqi; flex: 1; min-height: 0; }
+.dupla figure { margin: 0; display: flex; flex-direction: column; gap: 0.8cqi; min-height: 0; }
+.dupla .fig { flex: 1; height: auto; }
+.dupla figcaption { font-size: 1.5cqi; color: var(--muted); font-weight: 500; }
+.caminho { display: flex; flex-wrap: wrap; align-items: center; gap: 0.8cqi; font-size: 1.6cqi; font-weight: 600; }
+.caminho span { background: var(--brand-soft); padding: 0.4cqi 1cqi; border-radius: 0.6cqi; }
+
+/* controles */
+.controles { display: flex; align-items: center; gap: 10px; width: min(100%, calc((100dvh - 150px - env(safe-area-inset-top, 0px)) * 16 / 9)); }
+.progresso { flex: 1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; }
+.progresso button { height: 8px; border: 0; border-radius: 4px; background: var(--line); padding: 0; }
+.progresso button.feito { background: var(--brand); opacity: 0.45; }
+.progresso button.atual { background: var(--brand); }
+
+/* painel de estudo */
+.notas {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  display: flex; flex-direction: column; gap: 14px; position: sticky; top: calc(env(safe-area-inset-top, 0px) + 64px);
+  max-height: calc(100dvh - 84px - env(safe-area-inset-top, 0px)); overflow: auto; min-width: 0;
+}
+.notas h3 { font-family: var(--display); font-weight: 600; font-size: 20px; margin: 0; }
+.notas h4 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--brand); margin: 0 0 6px; }
+.notas p, .notas li { font-size: 15px; line-height: 1.5; margin: 0; }
+.notas ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
+.notas .tempo { display: flex; flex-wrap: wrap; gap: 6px; font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.notas .tempo b { color: var(--ink); }
+.gancho { font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 10px; }
+.ensaio { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 8px; background: var(--bg); }
+.ensaio .linhas { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.ensaio .linhas b { text-align: right; }
+.ensaio .estourou { color: var(--over); }
+.ensaio .ok { color: var(--ok); }
+.ensaio .acoes { display: flex; gap: 8px; }
+.aviso { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+
+/* zoom de diagrama */
+.zoom { position: fixed; inset: 0; z-index: 20; background: var(--overlay); display: flex; align-items: center; justify-content: center; padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); cursor: zoom-out; }
+.zoom img { max-width: 100%; max-height: 100%; background: var(--paper); border-radius: 10px; padding: 12px; object-fit: contain; }
+
+@media (max-width: 640px) {
+  .marca small { display: none; }
+  .btn-tela { display: none; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .slide.ativo { animation: entra 220ms ease-out; }
+  @keyframes entra { from { opacity: 0.4; transform: translateY(0.6cqi); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<header class="topbar">
+  <div class="marca"><img src="img/icone.svg" alt=""> Petiatra <small>Parte I · apresentação</small></div>
+  <span class="contador" id="contador" aria-live="polite">1 / 12</span>
+  <button class="btn btn-estudo" id="btn-estudo" aria-pressed="false" aria-controls="notas" title="Atalho: E">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 7h6M9 11h6"/></svg>
+    <span id="btn-estudo-texto">Estudar o que falar</span>
+  </button>
+  <button class="btn btn-tela" id="btn-tela" title="Atalho: F">Tela cheia</button>
+</header>
+
+<main class="app" id="app">
+  <div class="palco-wrap">
+    <section class="palco" id="palco" aria-roledescription="apresentação" aria-label="Slides">
+
+      <!-- 1 -->
+      <article class="slide capa" data-inicio="0:00" data-fim="0:40" data-alvo="40" data-nome="Abertura">
+        <img class="logo claro" src="img/logo.svg" alt="Petiatra">
+        <img class="logo escuro" src="img/logo-escuro.svg" alt="Petiatra">
+        <p class="titulo">Sistema web de gestão para clínicas veterinárias</p>
+        <p class="meta">Projeto de Desenvolvimento de Software I · UniFil · 2026<br>[Seu nome] · [Nome da dupla, se houver]</p>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>Seu nome (e o da dupla, se houver), curso e disciplina.</li>
+            <li>O Petiatra numa frase: sistema web para clínicas veterinárias pequenas.</li>
+            <li>Origem do nome: <em>pet</em> + <em>iatra</em>, do grego <em>iatrós</em> (médico), como em pediatra. Ou seja, “médico dos pets”.</li>
+            <li>O que o vídeo vai mostrar: problema, requisitos, arquitetura e diagramas.</li>
+          </ul>
+          <p class="gancho">Gancho para o próximo slide: começar pelo problema que o sistema resolve.</p>
+        </template>
+      </article>
+
+      <!-- 2 -->
+      <article class="slide" data-inicio="0:40" data-fim="1:10" data-alvo="30" data-nome="Problema e objetivo">
+        <span class="rotulo">Introdução</span>
+        <h2>Fichas de papel, planilhas e WhatsApp não dão conta da clínica</h2>
+        <div class="cartoes">
+          <div class="cartao"><strong>Horário marcado duas vezes</strong><span>Dois atendimentos para o mesmo veterinário, na mesma hora.</span></div>
+          <div class="cartao"><strong>Histórico perdido</strong><span>Consultas e tratamentos anteriores espalhados em vários lugares.</span></div>
+          <div class="cartao"><strong>Vacina vencida sem aviso</strong><span>O reforço passa da data e ninguém avisa o tutor.</span></div>
+        </div>
+        <p class="destaque"><b>Objetivo:</b> reunir tutores, pets, consultas e vacinas em um só lugar e mostrar, logo ao entrar, as consultas do dia e as vacinas atrasadas.</p>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>Como as clínicas pequenas trabalham hoje: papel, planilha e WhatsApp.</li>
+            <li>As três consequências dos cartões, com um exemplo do dia a dia.</li>
+            <li>O objetivo do sistema, lendo o quadro de destaque com as suas palavras.</li>
+          </ul>
+          <p class="gancho">Gancho: “e quem vai usar isso no dia a dia?”</p>
+        </template>
+      </article>
+
+      <!-- 3 -->
+      <article class="slide" data-inicio="1:10" data-fim="1:30" data-alvo="20" data-nome="Para quem">
+        <span class="rotulo">Público-alvo</span>
+        <h2>Um sistema para quem está começando e para quem usa todo dia</h2>
+        <div class="perfis">
+          <div class="perfil">
+            <h3>Quem está começando</h3>
+            <ul>
+              <li>Assistente “Novo atendimento”: tutor, pet e consulta em 3 passos</li>
+              <li>Campos essenciais primeiro; o resto em “Mais detalhes”</li>
+              <li>Ajuda nos campos e confirmação antes de excluir</li>
+            </ul>
+          </div>
+          <div class="perfil">
+            <h3>Quem usa todo dia</h3>
+            <ul>
+              <li>Busca rápida com <span class="kbd">/</span> ou <span class="kbd">Ctrl</span>+<span class="kbd">K</span></li>
+              <li>Atalho <span class="kbd">N</span> para novo registro</li>
+              <li>Filtros guardados e “Salvar e cadastrar outro”</li>
+            </ul>
+          </div>
+        </div>
+        <p class="sub">No celular: menu na barra inferior, botões de no mínimo 44 px e tabelas que viram cartões.</p>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>O usuário é o veterinário, com dois perfis de experiência.</li>
+            <li>Um exemplo de cada lado: o assistente guiado e o atalho de busca.</li>
+            <li>Funciona no celular, porque o veterinário nem sempre está no computador.</li>
+          </ul>
+          <p class="gancho">Gancho: “para construir isso, escolhi estas tecnologias.”</p>
+        </template>
+      </article>
+
+      <!-- 4 -->
+      <article class="slide" data-inicio="1:30" data-fim="2:20" data-alvo="50" data-nome="Tecnologias">
+        <span class="rotulo">Stack</span>
+        <h2>Tudo em C#, no padrão MVC nativo do .NET</h2>
+        <div class="stack">
+          <div class="forte"><b>C# · .NET 10</b><small>Linguagem e plataforma, versão com suporte longo (LTS)</small></div>
+          <div class="forte"><b>ASP.NET Core MVC</b><small>Controllers e Razor Views: o MVC nativo do .NET</small></div>
+          <div class="forte"><b>EF Core 10</b><small>O banco nasce das classes C# (Code First e Migrations)</small></div>
+          <div class="forte"><b>SQLite</b><small>Banco em arquivo, sem instalação; troca para SQL Server Express por configuração</small></div>
+          <div><b>Bootstrap 5.3</b><small>Layout responsivo, pensado primeiro para o celular</small></div>
+          <div><b>xUnit</b><small>Testes automatizados das regras de negócio</small></div>
+          <div><b>PlantUML</b><small>Diagramas UML versionados como texto</small></div>
+          <div><b>Git e GitHub</b><small>Repositório público com o histórico do projeto</small></div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>C# com .NET 10: versão de suporte longo, tipagem forte.</li>
+            <li>ASP.NET Core MVC: o padrão MVC que a disciplina pede, nativo do .NET, tudo em C#.</li>
+            <li>EF Core + SQLite: banco simples, sem instalação. Trocar para SQL Server Express é só mudar a configuração.</li>
+            <li>Bootstrap para responsividade, xUnit para testes, PlantUML para os diagramas.</li>
+          </ul>
+          <p class="gancho">Pergunta provável: “por que SQLite?” Porque o sistema é pequeno e o EF Core permite trocar o banco depois.</p>
+        </template>
+      </article>
+
+      <!-- 5 -->
+      <article class="slide" data-inicio="2:20" data-fim="3:30" data-alvo="70" data-nome="Requisitos">
+        <span class="rotulo">Requisitos</span>
+        <h2>14 requisitos funcionais, 7 regras de negócio e 12 não funcionais</h2>
+        <div class="numeros">
+          <div><b>14</b><span>requisitos funcionais (CRUD de tutores, pets, consultas e vacinas)</span></div>
+          <div><b>7</b><span>regras de negócio</span></div>
+          <div><b>12</b><span>requisitos não funcionais</span></div>
+        </div>
+        <div class="regras">
+          <div class="regra"><span class="tag">RN01</span><p>Um veterinário não pode ter duas consultas com menos de 30 minutos de intervalo.</p></div>
+          <div class="regra"><span class="tag">RN04</span><p>Um tutor com pets cadastrados não pode ser excluído.</p></div>
+          <div class="regra"><span class="tag">RN07</span><p>A vacina fica atrasada quando o reforço venceu e não há dose posterior.</p></div>
+        </div>
+        <p class="sub">Não funcionais em destaque: responsividade (RNF03), usabilidade para iniciantes (RNF04) e eficiência para experientes (RNF05).</p>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>Os três números e o que os funcionais cobrem: o CRUD de cada entidade e o assistente “Novo atendimento” (RF13).</li>
+            <li>Explique as três regras dos cartões com um exemplo cada.</li>
+            <li>Dois ou três não funcionais: celular e os dois perfis de usuário.</li>
+            <li>Mostre rapidamente as tabelas completas no PDF (páginas 5 e 6), se quiser.</li>
+          </ul>
+          <p class="gancho">Gancho: “para organizar tudo isso no código, usei MVC com SOLID.”</p>
+        </template>
+      </article>
+
+      <!-- 6 -->
+      <article class="slide" data-inicio="3:30" data-fim="4:50" data-alvo="80" data-nome="Arquitetura">
+        <span class="rotulo">Arquitetura</span>
+        <h2>MVC em camadas, com SOLID e Clean Code</h2>
+        <div class="colunas">
+          <div class="fig" data-zoom><img src="img/arquitetura-mvc.png" alt="Arquitetura MVC em camadas"><span class="lupa">ampliar</span></div>
+          <div class="lado">
+            <ul>
+              <li><b>S</b> · cada camada com uma responsabilidade</li>
+              <li><b>O</b> · regra nova = classe nova que implementa <code>IRegraAgendamento</code></li>
+              <li><b>L</b> · repositórios trocáveis (nos testes, banco em memória)</li>
+              <li><b>I</b> · interfaces pequenas e específicas</li>
+              <li><b>D</b> · controllers dependem de interfaces, ligadas no <code>Program.cs</code></li>
+            </ul>
+            <p class="destaque">Clean Code: nomes claros, métodos curtos e nada de números mágicos.</p>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>Percorra a figura de cima para baixo: navegador → Controller → Service → Repository → banco; a resposta volta como HTML montado pela View.</li>
+            <li>Controller não acessa o banco; View não tem regra de negócio.</li>
+            <li>O exemplo mais forte de SOLID: cada regra de agendamento é uma classe; regra nova não mexe no <code>ConsultaService</code> (Aberto/Fechado).</li>
+            <li>Inversão de dependência: o controller conhece a interface, não a classe concreta.</li>
+          </ul>
+          <p class="gancho">Clique na figura para ampliar durante a gravação.</p>
+        </template>
+      </article>
+
+      <!-- 7 -->
+      <article class="slide" data-inicio="4:50" data-fim="5:40" data-alvo="50" data-nome="Casos de uso">
+        <span class="rotulo">Diagrama de casos de uso</span>
+        <h2>Um ator e cinco casos de uso</h2>
+        <div class="colunas">
+          <div class="fig" data-zoom><img src="img/casos-de-uso.png" alt="Diagrama de casos de uso"><span class="lupa">ampliar</span></div>
+          <div class="lado">
+            <p>“Manter” = cadastrar, consultar, editar e excluir (CRUD).</p>
+            <p class="destaque"><b>«include»</b>: agendar consulta sempre verifica a disponibilidade do veterinário.</p>
+            <p class="destaque"><b>«extend»</b>: cadastrar veterinário (no login) e consultar vacinas atrasadas, que são opcionais.</p>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>O ator é o veterinário; os cinco casos de uso (UC01 a UC05).</li>
+            <li>O que significa “Manter”.</li>
+            <li>A diferença entre «include» (sempre acontece) e «extend» (opcional), com os exemplos.</li>
+          </ul>
+          <p class="gancho">Gancho: “e os dados desses casos de uso ficam guardados assim.”</p>
+        </template>
+      </article>
+
+      <!-- 8 -->
+      <article class="slide" data-inicio="5:40" data-fim="6:30" data-alvo="50" data-nome="DER">
+        <span class="rotulo">Diagrama entidade-relacionamento</span>
+        <h2>Cinco tabelas, com o pet no centro</h2>
+        <div class="colunas">
+          <div class="fig" data-zoom><img src="img/der.png" alt="DER"><span class="lupa">ampliar</span></div>
+          <div class="lado">
+            <ul>
+              <li>Um tutor tem vários pets; um pet tem várias consultas e vacinas</li>
+              <li>Cada consulta e vacina tem o veterinário responsável</li>
+              <li>Excluir o pet apaga o histórico dele (cascata)</li>
+              <li>Excluir tutor com pets é bloqueado</li>
+              <li>Únicos: CPF, e-mail e CRMV</li>
+            </ul>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>As 5 tabelas e por que o pet fica no centro.</li>
+            <li>Leia uma cardinalidade em voz alta: “um tutor possui zero ou muitos pets”.</li>
+            <li>O que acontece na exclusão: cascata no pet, bloqueio no tutor.</li>
+            <li>As restrições de unicidade.</li>
+          </ul>
+          <p class="gancho">Gancho: “a atividade com mais decisões é agendar uma consulta.”</p>
+        </template>
+      </article>
+
+      <!-- 9 -->
+      <article class="slide" data-inicio="6:30" data-fim="7:15" data-alvo="45" data-nome="Atividade">
+        <span class="rotulo">Diagrama de atividade</span>
+        <h2>Agendar consulta: três verificações antes de gravar</h2>
+        <div class="colunas">
+          <div class="fig" data-zoom><img src="img/atividade.png" alt="Diagrama de atividade: agendar consulta"><span class="lupa">ampliar</span></div>
+          <div class="lado">
+            <ol>
+              <li>Campos obrigatórios preenchidos</li>
+              <li>Horário dentro do expediente (RN02)</li>
+              <li>Veterinário livre por 30 minutos (RN01)</li>
+            </ol>
+            <p class="destaque">Se algo falhar, o formulário volta com os dados digitados e a mensagem do problema.</p>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>As duas raias: veterinário e sistema.</li>
+            <li>Siga o caminho feliz até “Gravar consulta”.</li>
+            <li>Mostre um caminho de erro e o laço de volta para corrigir.</li>
+          </ul>
+          <p class="gancho">Gancho: “essas regras moram nas classes do sistema.”</p>
+        </template>
+      </article>
+
+      <!-- 10 -->
+      <article class="slide" data-inicio="7:15" data-fim="8:00" data-alvo="45" data-nome="Classes">
+        <span class="rotulo">Diagrama de classes</span>
+        <h2>Cinco entidades e quatro enums</h2>
+        <div class="colunas">
+          <div class="fig" data-zoom><img src="img/classes.png" alt="Diagrama de classes"><span class="lupa">ampliar</span></div>
+          <div class="lado">
+            <p><b>Modelo rico:</b> a regra que só depende da própria classe fica dentro dela.</p>
+            <ul>
+              <li><code>Consulta.ConflitaCom()</code></li>
+              <li><code>Vacina.ObterSituacao()</code></li>
+              <li><code>Pet.CalcularIdade()</code></li>
+            </ul>
+            <p class="sub">A composição entre Pet, Consulta e Vacina explica a exclusão em cascata do DER.</p>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>As 5 entidades e os 4 enums (Especie, Sexo, StatusConsulta, SituacaoVacina).</li>
+            <li>O que é “modelo rico”, com um dos três métodos de exemplo.</li>
+            <li>A ligação com o DER: a composição gera a exclusão em cascata.</li>
+          </ul>
+          <p class="gancho">Gancho: “e como essas classes conversam numa requisição?”</p>
+        </template>
+      </article>
+
+      <!-- 11 -->
+      <article class="slide" data-inicio="8:00" data-fim="9:00" data-alvo="60" data-nome="Sequência">
+        <span class="rotulo">Diagramas de sequência · UC04</span>
+        <h2>Agendar consulta, da tela ao banco</h2>
+        <div class="dupla">
+          <figure><figcaption>Parte 1: validação das regras</figcaption><div class="fig" data-zoom><img src="img/seq-uc04a.png" alt="Sequência UC04, parte 1"><span class="lupa">ampliar</span></div></figure>
+          <figure><figcaption>Parte 2: gravação ou recusa</figcaption><div class="fig" data-zoom><img src="img/seq-uc04b.png" alt="Sequência UC04, parte 2"><span class="lupa">ampliar</span></div></figure>
+        </div>
+        <div class="caminho"><span>View</span>→<span>Controller</span>→<span>Service</span>→<span>Repository</span>→<span>Banco</span></div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>Todo caso de uso segue o mesmo caminho (a faixa embaixo).</li>
+            <li>Parte 1: o <code>ConsultaService</code> percorre as regras num loop; a regra de conflito busca as consultas do dia e compara os horários.</li>
+            <li>Parte 2: se todas aprovam, grava; se uma recusa, o formulário volta com a mensagem.</li>
+            <li>Os outros casos de uso têm seus diagramas no documento, um por operação.</li>
+          </ul>
+          <p class="gancho">Amplie a parte 1 enquanto explica o loop.</p>
+        </template>
+      </article>
+
+      <!-- 12 -->
+      <article class="slide" data-inicio="9:00" data-fim="9:30" data-alvo="30" data-nome="Conclusão">
+        <span class="rotulo">Conclusão</span>
+        <h2>Modelar antes de programar evita retrabalho</h2>
+        <div class="perfis">
+          <div class="perfil">
+            <h3>O que aprendi</h3>
+            <ul>
+              <li>O diagrama de atividade revelou a segunda verificação de horário</li>
+              <li>O DER definiu o que acontece ao excluir um pet</li>
+              <li>MVC e SOLID na prática, não só na teoria</li>
+            </ul>
+          </div>
+          <div class="perfil">
+            <h3>Próximo passo</h3>
+            <ul>
+              <li>Parte II: implementar exatamente este desenho</li>
+              <li>Código no repositório público do GitHub</li>
+            </ul>
+            <p class="titulo" style="font-family: var(--display); font-size: 3cqi; margin-top: auto;">Obrigado!</p>
+          </div>
+        </div>
+        <template class="falas">
+          <h4>Pontos a falar</h4>
+          <ul>
+            <li>O que você aprendeu, com as suas palavras (um ou dois exemplos dos cartões).</li>
+            <li>O próximo passo: a Parte II implementa o que foi documentado.</li>
+            <li>Agradeça e encerre.</li>
+          </ul>
+          <p class="gancho">Pare a gravação logo depois do agradecimento.</p>
+        </template>
+      </article>
+
+    </section>
+
+    <nav class="controles" aria-label="Navegação">
+      <button class="btn" id="anterior" aria-label="Slide anterior">‹ Anterior</button>
+      <div class="progresso" id="progresso"></div>
+      <button class="btn" id="proximo" aria-label="Próximo slide">Próximo ›</button>
+    </nav>
+  </div>
+
+  <aside class="notas" id="notas" hidden aria-label="O que falar">
+    <div>
+      <h3 id="notas-titulo">Abertura</h3>
+      <div class="tempo" id="notas-tempo"></div>
+    </div>
+    <div id="notas-conteudo"></div>
+    <div class="ensaio">
+      <h4>Ensaio cronometrado</h4>
+      <div class="linhas">
+        <span>Neste slide</span><b id="t-slide">0:00 / 0:40</b>
+        <span>Total</span><b id="t-total">0:00 / 9:30</b>
+      </div>
+      <div class="acoes">
+        <button class="btn" id="t-iniciar">Iniciar</button>
+        <button class="btn" id="t-zerar">Zerar</button>
+      </div>
+    </div>
+    <p class="aviso">Fale com as suas palavras: estes tópicos são lembretes, não um texto para ler. Atalhos: ← → mudam o slide, E abre e fecha este painel, F alterna a tela cheia.</p>
+  </aside>
+</main>
+
+<div class="zoom" id="zoom" hidden><img id="zoom-img" alt=""></div>
+
+<script>
+(() => {
+  const slides = [...document.querySelectorAll('.slide')];
+  const total = slides.length;
+  const $ = id => document.getElementById(id);
+  const app = $('app'), notas = $('notas'), btnEstudo = $('btn-estudo');
+  const progresso = $('progresso');
+  let atual = 0;
+
+  const seg = t => { const [m, s] = t.split(':').map(Number); return m * 60 + s; };
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const TOTAL_ALVO = seg(slides.at(-1).dataset.fim);
+
+  slides.forEach((s, i) => {
+    const b = document.createElement('button');
+    b.setAttribute('aria-label', `Ir para o slide ${i + 1}: ${s.dataset.nome}`);
+    b.title = `${i + 1}. ${s.dataset.nome}`;
+    b.addEventListener('click', () => ir(i));
+    progresso.appendChild(b);
+  });
+
+  function ir(i) {
+    atual = Math.max(0, Math.min(total - 1, i));
+    slides.forEach((s, k) => s.classList.toggle('ativo', k === atual));
+    [...progresso.children].forEach((b, k) => { b.classList.toggle('atual', k === atual); b.classList.toggle('feito', k < atual); });
+    $('contador').textContent = `${atual + 1} / ${total}`;
+    $('anterior').disabled = atual === 0;
+    $('proximo').disabled = atual === total - 1;
+    const s = slides[atual];
+    $('notas-titulo').textContent = `${atual + 1}. ${s.dataset.nome}`;
+    $('notas-tempo').innerHTML = `<span>Tempo do bloco: <b>${fmt(Number(s.dataset.alvo))}</b></span><span>· de ${s.dataset.inicio} a ${s.dataset.fim}</span>`;
+    $('notas-conteudo').innerHTML = s.querySelector('template.falas').innerHTML;
+    tSlide = 0; pintarTempo();
+    if (location.hash !== `#slide-${atual + 1}`) history.replaceState(null, '', `#slide-${atual + 1}`);
+  }
+
+  // modo estudo
+  function estudo(ligar) {
+    app.classList.toggle('estudo', ligar);
+    notas.hidden = !ligar;
+    btnEstudo.setAttribute('aria-pressed', String(ligar));
+    $('btn-estudo-texto').textContent = ligar ? 'Fechar estudo' : 'Estudar o que falar';
+    try { localStorage.setItem('petiatra-estudo', ligar ? '1' : '0'); } catch (e) {}
+  }
+  btnEstudo.addEventListener('click', () => estudo(notas.hidden));
+
+  // cronômetro de ensaio
+  let rodando = false, tTotal = 0, tSlide = 0, ultimo = 0, timer = null;
+  function pintarTempo() {
+    const alvo = Number(slides[atual].dataset.alvo);
+    const elS = $('t-slide'), elT = $('t-total');
+    elS.textContent = `${fmt(tSlide)} / ${fmt(alvo)}`;
+    elT.textContent = `${fmt(tTotal)} / ${fmt(TOTAL_ALVO)}`;
+    elS.className = tSlide > alvo ? 'estourou' : (rodando ? 'ok' : '');
+    elT.className = tTotal > 600 ? 'estourou' : (tTotal > TOTAL_ALVO ? '' : (rodando ? 'ok' : ''));
+  }
+  function tick() { const agora = performance.now(); const d = (agora - ultimo) / 1000; ultimo = agora; tTotal += d; tSlide += d; pintarTempo(); }
+  $('t-iniciar').addEventListener('click', () => {
+    rodando = !rodando;
+    $('t-iniciar').textContent = rodando ? 'Pausar' : 'Continuar';
+    if (rodando) { ultimo = performance.now(); timer = setInterval(tick, 250); } else { clearInterval(timer); }
+    pintarTempo();
+  });
+  $('t-zerar').addEventListener('click', () => {
+    rodando = false; clearInterval(timer); tTotal = 0; tSlide = 0;
+    $('t-iniciar').textContent = 'Iniciar'; pintarTempo();
+  });
+
+  // navegação
+  $('anterior').addEventListener('click', () => ir(atual - 1));
+  $('proximo').addEventListener('click', () => ir(atual + 1));
+  const zoom = $('zoom'), zoomImg = $('zoom-img');
+  document.querySelectorAll('[data-zoom]').forEach(f => f.addEventListener('click', () => {
+    const img = f.querySelector('img'); zoomImg.src = img.src; zoomImg.alt = img.alt; zoom.hidden = false;
+  }));
+  zoom.addEventListener('click', () => { zoom.hidden = true; });
+
+  function telaCheia() {
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen?.().catch(() => {});
+    } catch (e) {}
+  }
+  $('btn-tela').addEventListener('click', telaCheia);
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input, textarea')) return;
+    if (!zoom.hidden && (e.key === 'Escape' || e.key === ' ')) { zoom.hidden = true; e.preventDefault(); return; }
+    if (e.key === 'ArrowRight' || e.key === 'PageDown' || (e.key === ' ' && e.target === document.body)) { ir(atual + 1); e.preventDefault(); }
+    else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { ir(atual - 1); e.preventDefault(); }
+    else if (e.key === 'Home') ir(0);
+    else if (e.key === 'End') ir(total - 1);
+    else if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey) estudo(notas.hidden);
+    else if (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey) telaCheia();
+  });
+
+  // deslizar no celular
+  let x0 = null;
+  $('palco').addEventListener('touchstart', e => { x0 = e.touches[0].clientX; }, { passive: true });
+  $('palco').addEventListener('touchend', e => {
+    if (x0 === null) return; const dx = e.changedTouches[0].clientX - x0; x0 = null;
+    if (Math.abs(dx) > 50) ir(atual + (dx < 0 ? 1 : -1));
+  });
+
+  const doHash = () => { const m = location.hash.match(/^#slide-(\d+)$/); return m ? Number(m[1]) - 1 : 0; };
+  window.addEventListener('hashchange', () => ir(doHash()));
+  let salvo = false; try { salvo = localStorage.getItem('petiatra-estudo') === '1'; } catch (e) {}
+  estudo(salvo);
+  ir(doHash());
+})();
+</script>
