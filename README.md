@@ -6,7 +6,7 @@
 
 Projeto das disciplinas **Projeto de Desenvolvimento de Software I e II** da UniFil.
 
-**Autor(es):** _[nome completo]_ e _[nome da dupla, se houver]_
+**Autor:** Enzo Vasconcelos de Morais
 
 > **Petiatra** = *pet* + *iatra*, do grego *iatrós* (médico), a mesma origem de "pediatra". Ou seja, "médico dos pets".
 
