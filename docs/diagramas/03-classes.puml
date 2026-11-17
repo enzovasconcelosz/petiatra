@@ -1,0 +1,100 @@
+@startuml classes
+!include _estilo.iuml
+skinparam classAttributeIconSize 0
+title Diagrama de Classes (entidades do domínio)
+class Veterinario {
+  + Id : int
+  + Nome : string
+  + Email : string
+  + Crmv : string
+  + SenhaHash : string
+  + CriadoEm : DateTime
+  --
+  + DefinirSenha(hash : string) : void
+}
+class Tutor {
+  + Id : int
+  + Nome : string
+  + Cpf : string
+  + Telefone : string
+  + Email : string?
+  + Endereco : string?
+  + CriadoEm : DateTime
+  + Pets : List<Pet>
+}
+class Pet {
+  + Id : int
+  + Nome : string
+  + Especie : Especie
+  + Raca : string?
+  + Sexo : Sexo
+  + DataNascimento : DateOnly?
+  + PesoKg : decimal?
+  + Observacoes : string?
+  + TutorId : int
+  + CriadoEm : DateTime
+  --
+  + CalcularIdade(hoje : DateOnly) : string
+}
+class Consulta {
+  + Id : int
+  + DataHora : DateTime
+  + Motivo : string
+  + Diagnostico : string?
+  + Tratamento : string?
+  + Valor : decimal?
+  + Status : StatusConsulta
+  + PetId : int
+  + VeterinarioId : int
+  + CriadoEm : DateTime
+  --
+  + ConflitaCom(outra : Consulta, intervalo : TimeSpan) : bool
+  + RegistrarAtendimento(diagnostico : string, tratamento : string, valor : decimal?) : void
+  + Cancelar() : void
+}
+class Vacina {
+  + Id : int
+  + Nome : string
+  + DataAplicacao : DateOnly
+  + DataReforco : DateOnly?
+  + Lote : string?
+  + PetId : int
+  + VeterinarioId : int
+  + CriadoEm : DateTime
+  --
+  + ObterSituacao(hoje : DateOnly, reforcoAplicado : bool) : SituacaoVacina
+}
+enum Especie {
+  Cachorro
+  Gato
+  Ave
+  Roedor
+  Reptil
+  Outro
+}
+enum Sexo {
+  NaoInformado
+  Macho
+  Femea
+}
+enum StatusConsulta {
+  Agendada
+  Realizada
+  Cancelada
+}
+enum SituacaoVacina {
+  DoseUnica
+  EmDia
+  Atrasada
+  ReforcoAplicado
+}
+Tutor "1" -- "0..*" Pet : possui >
+Pet "1" *-- "0..*" Consulta : histórico
+Pet "1" *-- "0..*" Vacina : carteira
+Veterinario "1" -- "0..*" Consulta : realiza >
+Veterinario "1" -- "0..*" Vacina : aplica >
+Pet ..> Especie
+Pet ..> Sexo
+Consulta ..> StatusConsulta
+Vacina ..> SituacaoVacina
+@enduml

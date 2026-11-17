@@ -1,0 +1,70 @@
+@startuml der
+!include _estilo.iuml
+hide circle
+skinparam linetype ortho
+title Diagrama Entidade-Relacionamento (DER)
+entity "veterinario" as veterinario {
+  * id : INT <<PK>>
+  --
+  * nome : VARCHAR(100)
+  * email : VARCHAR(120) <<UNIQUE>>
+  * crmv : VARCHAR(20) <<UNIQUE>>
+  * senha_hash : VARCHAR(255)
+  * criado_em : DATETIME
+}
+entity "tutor" as tutor {
+  * id : INT <<PK>>
+  --
+  * nome : VARCHAR(100)
+  * cpf : CHAR(11) <<UNIQUE>>
+  * telefone : VARCHAR(20)
+  email : VARCHAR(120)
+  endereco : VARCHAR(200)
+  * criado_em : DATETIME
+}
+entity "pet" as pet {
+  * id : INT <<PK>>
+  --
+  * nome : VARCHAR(60)
+  * especie : VARCHAR(20)
+  raca : VARCHAR(60)
+  * sexo : VARCHAR(15)
+  data_nascimento : DATE
+  peso_kg : DECIMAL(6,2)
+  observacoes : VARCHAR(500)
+  * tutor_id : INT <<FK>>
+  * criado_em : DATETIME
+}
+entity "consulta" as consulta {
+  * id : INT <<PK>>
+  --
+  * data_hora : DATETIME
+  * motivo : VARCHAR(200)
+  diagnostico : VARCHAR(2000)
+  tratamento : VARCHAR(2000)
+  valor : DECIMAL(10,2)
+  * status : VARCHAR(15)
+  * pet_id : INT <<FK>>
+  * veterinario_id : INT <<FK>>
+  * criado_em : DATETIME
+}
+entity "vacina" as vacina {
+  * id : INT <<PK>>
+  --
+  * nome : VARCHAR(80)
+  * data_aplicacao : DATE
+  data_reforco : DATE
+  lote : VARCHAR(40)
+  * pet_id : INT <<FK>>
+  * veterinario_id : INT <<FK>>
+  * criado_em : DATETIME
+}
+tutor ||--o{ pet : possui
+pet ||--o{ consulta : recebe
+pet ||--o{ vacina : recebe
+veterinario ||--o{ consulta : realiza
+veterinario ||--o{ vacina : aplica
+legend right
+  * = obrigatório (NOT NULL)
+endlegend
+@enduml

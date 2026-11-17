@@ -1,0 +1,54 @@
+@startuml seq-uc02
+!include _estilo.iuml
+autonumber
+title UC02 - Manter tutores
+actor "Veterinário" as V
+boundary "Tutores\n(Views Razor)" as T
+control "TutoresController" as C
+control "TutorService" as S
+participant "TutorRepositorio" as R
+database "AppDbContext\n(EF Core / SQLite)" as DB
+group Cadastrar / editar
+  V -> T : preenche nome, CPF e telefone
+  T -> C : POST /Tutores/Criar (TutorFormViewModel)
+  C -> S : SalvarAsync(dados)
+  S -> R : ExisteCpfAsync(cpf, idIgnorado)
+  R -> DB : SELECT COUNT(*) ... WHERE cpf = @cpf
+  DB --> R : quantidade
+  alt CPF disponível
+    S -> R : Adicionar(tutor) / Atualizar(tutor)
+    R -> DB : SaveChangesAsync() -> INSERT / UPDATE
+    S --> C : Resultado.Sucesso
+    C --> T : RedirectToAction("Index") + mensagem
+  else CPF já cadastrado (RN03)
+    S --> C : Resultado.Falha("CPF já cadastrado")
+    C --> T : View(model) com o erro
+  end
+end
+group Listar / buscar
+  V -> T : digita nome, CPF ou telefone
+  T -> C : GET /Tutores?busca=...&pagina=1
+  C -> S : ListarAsync(filtro)
+  S -> R : BuscarPaginadoAsync(filtro)
+  R -> DB : SELECT ... WHERE nome LIKE ... LIMIT 20
+  DB --> R : página de tutores
+  R --> S : lista
+  S --> C : PaginaViewModel<TutorItem>
+  C --> T : View(lista)
+end
+group Excluir
+  V -> T : confirma a exclusão
+  T -> C : POST /Tutores/Excluir/{id}
+  C -> S : ExcluirAsync(id)
+  S -> R : PossuiPetsAsync(id)
+  R -> DB : SELECT ... FROM pet WHERE tutor_id = @id
+  alt sem pets
+    S -> R : Remover(tutor)
+    R -> DB : DELETE FROM tutor WHERE id = @id
+    S --> C : Resultado.Sucesso
+  else possui pets (RN04)
+    S --> C : Resultado.Falha("Tutor possui pets")
+  end
+  C --> T : RedirectToAction("Index") + mensagem
+end
+@enduml

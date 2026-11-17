@@ -1,0 +1,46 @@
+@startuml seq-uc03
+!include _estilo.iuml
+autonumber
+title UC03 - Manter pets
+actor "Veterinário" as V
+boundary "Pets\n(Views Razor)" as T
+control "PetsController" as C
+control "PetService" as S
+participant "PetRepositorio" as R
+database "AppDbContext\n(EF Core / SQLite)" as DB
+group Cadastrar / editar
+  V -> T : informa nome, espécie, sexo e tutor
+  T -> C : POST /Pets/Criar (PetFormViewModel)
+  C -> S : SalvarAsync(dados)
+  S -> S : valida tutor existente e data de nascimento
+  alt dados válidos
+    S -> R : Adicionar(pet) / Atualizar(pet)
+    R -> DB : SaveChangesAsync() -> INSERT / UPDATE
+    S --> C : Resultado.Sucesso(id)
+    C --> T : RedirectToAction("Detalhes", id)
+  else inválidos
+    S --> C : Resultado.Falha(mensagem)
+    C --> T : View(model) com o erro
+  end
+end
+group Ver ficha do pet
+  V -> T : abre o pet
+  T -> C : GET /Pets/Detalhes/{id}
+  C -> S : ObterFichaAsync(id)
+  S -> R : ObterComHistoricoAsync(id)
+  R -> DB : SELECT pet + tutor + consultas + vacinas (Include)
+  DB --> R : dados
+  R --> S : Pet
+  S --> C : FichaPetViewModel (idade, situação das vacinas)
+  C --> T : View(ficha)
+end
+group Excluir
+  V -> T : confirma a exclusão
+  T -> C : POST /Pets/Excluir/{id}
+  C -> S : ExcluirAsync(id)
+  S -> R : Remover(pet)
+  R -> DB : DELETE pet (consultas e vacinas em cascata - RN05)
+  S --> C : Resultado.Sucesso
+  C --> T : RedirectToAction("Index") + mensagem
+end
+@enduml

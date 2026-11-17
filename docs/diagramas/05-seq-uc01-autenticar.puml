@@ -1,0 +1,30 @@
+@startuml seq-uc01
+!include _estilo.iuml
+autonumber
+title UC01 - Autenticar-se
+actor "Veterinário" as V
+boundary "Conta/Login\n(View Razor)" as T
+control "ContaController" as C
+control "AuthService" as S
+participant "VeterinarioRepositorio" as R
+database "AppDbContext\n(EF Core / SQLite)" as DB
+V -> T : informa e-mail e senha
+T -> C : POST /Conta/Login (LoginViewModel)
+C -> C : ModelState.IsValid
+C -> S : AutenticarAsync(email, senha)
+S -> R : ObterPorEmailAsync(email)
+R -> DB : SELECT ... FROM veterinario WHERE email = @email
+DB --> R : registro
+R --> S : Veterinario?
+S -> S : PasswordHasher.VerifyHashedPassword()
+alt credenciais válidas
+  S --> C : Resultado.Sucesso(veterinario)
+  C -> C : HttpContext.SignInAsync(cookie)
+  C --> T : RedirectToAction("Index", "Painel")
+  T --> V : exibe o painel inicial
+else e-mail ou senha incorretos
+  S --> C : Resultado.Falha("E-mail ou senha inválidos")
+  C --> T : View(model) com a mensagem
+  T --> V : exibe o erro
+end
+@enduml

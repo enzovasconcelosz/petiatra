@@ -1,0 +1,37 @@
+@startuml atividade
+!include _estilo.iuml
+title Diagrama de Atividade: Agendar consulta
+|Veterinário|
+start
+:Acessar "Consultas" e clicar em "Nova consulta";
+|Sistema|
+:Exibir formulário com pets e veterinários;
+|Veterinário|
+repeat
+  :Selecionar pet e veterinário;
+  :Informar data, hora e motivo;
+  :Clicar em "Salvar";
+  |Sistema|
+  if (Campos obrigatórios preenchidos?) then (não)
+    :Indicar os campos com erro;
+  else (sim)
+    if (Horário dentro do expediente?\n(RN02)) then (não)
+      :Exibir "Fora do horário de funcionamento";
+    else (sim)
+      if (Veterinário livre por 30 min?\n(RN01)) then (não)
+        :Exibir "Horário ocupado, escolha outro";
+      else (sim)
+        :Gravar consulta com status "Agendada";
+        :Exibir "Consulta agendada com sucesso";
+        :Mostrar a agenda atualizada;
+        stop
+      endif
+    endif
+  endif
+  :Manter os dados digitados no formulário;
+  |Veterinário|
+repeat while (Corrigir os dados?) is (sim)
+->não;
+:Cancelar;
+stop
+@enduml
