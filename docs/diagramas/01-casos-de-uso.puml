@@ -3,7 +3,7 @@
 left to right direction
 title Diagrama de Casos de Uso
 actor "Veterinário" as Vet
-rectangle "Sistema de Gestão Veterinária" {
+rectangle "Petiatra" {
   usecase "UC01 - Autenticar-se" as UC01
   usecase "UC02 - Manter tutores" as UC02
   usecase "UC03 - Manter pets" as UC03

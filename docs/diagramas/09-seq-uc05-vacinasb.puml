@@ -1,28 +1,17 @@
-@startuml seq-uc05
+@startuml seq-uc05b
 !include _estilo.iuml
+skinparam maxMessageSize 120
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam defaultFontSize 13
 autonumber
-title UC05 - Manter vacinas
+title UC05 - Manter vacinas (vacinas atrasadas)
 actor "Veterinário" as V
 boundary "Vacinas\n(Views Razor)" as T
 control "VacinasController" as C
 control "VacinaService" as S
 participant "VacinaRepositorio" as R
 database "AppDbContext\n(EF Core / SQLite)" as DB
-group Registrar dose
-  V -> T : informa vacina, aplicação, reforço e lote
-  T -> C : POST /Vacinas/Criar (VacinaFormViewModel)
-  C -> S : RegistrarAsync(dados)
-  S -> S : aplicação <= hoje e reforço > aplicação (RN06)
-  alt datas válidas
-    S -> R : Adicionar(vacina)
-    R -> DB : SaveChangesAsync() -> INSERT INTO vacina
-    S --> C : Resultado.Sucesso
-    C --> T : RedirectToAction("Detalhes", "Pets", petId)
-  else datas inválidas
-    S --> C : Resultado.Falha(mensagem)
-    C --> T : View(model) com o erro
-  end
-end
 group Consultar vacinas atrasadas
   V -> T : abre o filtro "Atrasadas"
   T -> C : GET /Vacinas?situacao=Atrasada

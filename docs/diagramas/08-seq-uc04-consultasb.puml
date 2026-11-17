@@ -1,0 +1,27 @@
+@startuml seq-uc04b
+!include _estilo.iuml
+skinparam maxMessageSize 100
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam defaultFontSize 13
+autonumber
+title UC04 - Manter consultas (agendar, parte 2: gravação ou recusa)
+actor "Veterinário" as V
+boundary "Consultas/Criar\n(View Razor)" as T
+control "ConsultasController" as C
+control "ConsultaService" as S
+participant "ConsultaRepositorio" as R
+database "AppDbContext\n(EF Core / SQLite)" as DB
+note over C, S : continua após a validação das regras (parte 1)
+alt todas as regras aprovaram
+  S -> R : Adicionar(consulta)
+  R -> DB : SaveChangesAsync() -> INSERT INTO consulta
+  S --> C : Resultado.Sucesso
+  C --> T : RedirectToAction("Index")
+  T --> V : "Consulta agendada" e agenda atualizada
+else alguma regra recusou (RN01 / RN02)
+  S --> C : Resultado.Falha(mensagem da regra)
+  C --> T : View(model) + ModelState.AddModelError
+  T --> V : motivo da recusa, com os dados mantidos
+end
+@enduml

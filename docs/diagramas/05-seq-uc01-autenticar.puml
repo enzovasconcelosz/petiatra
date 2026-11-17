@@ -1,5 +1,9 @@
 @startuml seq-uc01
 !include _estilo.iuml
+skinparam maxMessageSize 120
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam defaultFontSize 13
 autonumber
 title UC01 - Autenticar-se
 actor "Veterinário" as V

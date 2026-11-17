@@ -1,7 +1,11 @@
-@startuml seq-uc03
+@startuml seq-uc03a
 !include _estilo.iuml
+skinparam maxMessageSize 120
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam defaultFontSize 13
 autonumber
-title UC03 - Manter pets
+title UC03 - Manter pets (cadastrar e editar)
 actor "Veterinário" as V
 boundary "Pets\n(Views Razor)" as T
 control "PetsController" as C
@@ -22,25 +26,5 @@ group Cadastrar / editar
     S --> C : Resultado.Falha(mensagem)
     C --> T : View(model) com o erro
   end
-end
-group Ver ficha do pet
-  V -> T : abre o pet
-  T -> C : GET /Pets/Detalhes/{id}
-  C -> S : ObterFichaAsync(id)
-  S -> R : ObterComHistoricoAsync(id)
-  R -> DB : SELECT pet + tutor + consultas + vacinas (Include)
-  DB --> R : dados
-  R --> S : Pet
-  S --> C : FichaPetViewModel (idade, situação das vacinas)
-  C --> T : View(ficha)
-end
-group Excluir
-  V -> T : confirma a exclusão
-  T -> C : POST /Pets/Excluir/{id}
-  C -> S : ExcluirAsync(id)
-  S -> R : Remover(pet)
-  R -> DB : DELETE pet (consultas e vacinas em cascata - RN05)
-  S --> C : Resultado.Sucesso
-  C --> T : RedirectToAction("Index") + mensagem
 end
 @enduml

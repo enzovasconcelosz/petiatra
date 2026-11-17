@@ -1,7 +1,11 @@
-@startuml seq-uc02
+@startuml seq-uc02a
 !include _estilo.iuml
+skinparam maxMessageSize 120
+skinparam ParticipantPadding 2
+skinparam BoxPadding 2
+skinparam defaultFontSize 13
 autonumber
-title UC02 - Manter tutores
+title UC02 - Manter tutores (cadastrar e editar)
 actor "Veterinário" as V
 boundary "Tutores\n(Views Razor)" as T
 control "TutoresController" as C
@@ -24,31 +28,5 @@ group Cadastrar / editar
     S --> C : Resultado.Falha("CPF já cadastrado")
     C --> T : View(model) com o erro
   end
-end
-group Listar / buscar
-  V -> T : digita nome, CPF ou telefone
-  T -> C : GET /Tutores?busca=...&pagina=1
-  C -> S : ListarAsync(filtro)
-  S -> R : BuscarPaginadoAsync(filtro)
-  R -> DB : SELECT ... WHERE nome LIKE ... LIMIT 20
-  DB --> R : página de tutores
-  R --> S : lista
-  S --> C : PaginaViewModel<TutorItem>
-  C --> T : View(lista)
-end
-group Excluir
-  V -> T : confirma a exclusão
-  T -> C : POST /Tutores/Excluir/{id}
-  C -> S : ExcluirAsync(id)
-  S -> R : PossuiPetsAsync(id)
-  R -> DB : SELECT ... FROM pet WHERE tutor_id = @id
-  alt sem pets
-    S -> R : Remover(tutor)
-    R -> DB : DELETE FROM tutor WHERE id = @id
-    S --> C : Resultado.Sucesso
-  else possui pets (RN04)
-    S --> C : Resultado.Falha("Tutor possui pets")
-  end
-  C --> T : RedirectToAction("Index") + mensagem
 end
 @enduml
