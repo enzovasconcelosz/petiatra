@@ -127,7 +127,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
 .numeros div { display: flex; align-items: baseline; gap: 1.2cqi; }
 .numeros b { font-family: var(--display); font-size: 7cqi; color: var(--brand); line-height: 1; font-variant-numeric: tabular-nums; }
 .numeros span { font-size: 1.8cqi; color: var(--muted); }
-.regras { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.6cqi; }
+.regras { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.6cqi; }
 .regra { border: 1px solid var(--line); border-radius: 1.2cqi; padding: 1.4cqi; display: flex; flex-direction: column; gap: 0.6cqi; }
 .tag { align-self: flex-start; font-size: 1.3cqi; font-weight: 600; color: var(--brand-ink); background: var(--brand); padding: 0.25cqi 0.8cqi; border-radius: 0.6cqi; }
 .regra p { font-size: 1.65cqi; }
@@ -281,14 +281,13 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         <div class="regras">
           <div class="regra"><span class="tag">RN01</span><p>Um veterinário não pode ter duas consultas com menos de 30 minutos de intervalo.</p></div>
           <div class="regra"><span class="tag">RN04</span><p>Um tutor com pets cadastrados não pode ser excluído.</p></div>
-          <div class="regra"><span class="tag">RN07</span><p>A vacina fica atrasada quando o reforço venceu e não há dose posterior.</p></div>
         </div>
         <p class="sub">Não funcionais em destaque: responsividade (RNF03), usabilidade para iniciantes (RNF04) e eficiência para experientes (RNF05).</p>
         <template class="falas">
           <h4>Pontos a falar</h4>
           <ul>
             <li>Os três números e o que os funcionais cobrem: o CRUD de cada entidade e o assistente “Novo atendimento” (RF13).</li>
-            <li>Explique as três regras dos cartões com um exemplo cada.</li>
+            <li>Explique as duas regras dos cartões com um exemplo cada.</li>
             <li>Dois ou três não funcionais: celular e os dois perfis de usuário.</li>
             <li>Mostre rapidamente as tabelas completas no PDF (páginas 5 e 6), se quiser.</li>
           </ul>
