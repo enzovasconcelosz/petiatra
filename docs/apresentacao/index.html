@@ -67,6 +67,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .btn-estudo { background: var(--brand); color: var(--brand-ink); border-color: var(--brand); font-weight: 600; }
 .btn-estudo[aria-pressed="true"] { background: var(--brand-soft); color: var(--ink); }
 .btn svg { width: 16px; height: 16px; }
+/* em tela cheia (gravação): sem botão de estudo nem painel de notas */
+.tela-cheia .btn-estudo, .tela-cheia .notas { display: none !important; }
+.tela-cheia .app.estudo { grid-template-columns: minmax(0, 1fr); }
 
 /* área principal */
 .app { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -629,6 +632,11 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
     } catch (e) {}
   }
   $('btn-tela').addEventListener('click', telaCheia);
+  document.addEventListener('fullscreenchange', () => {
+    const cheia = !!document.fullscreenElement;
+    document.documentElement.classList.toggle('tela-cheia', cheia);
+    $('btn-tela').textContent = cheia ? 'Sair da tela cheia' : 'Tela cheia';
+  });
 
   document.addEventListener('keydown', e => {
     if (e.target.closest('input, textarea')) return;
@@ -637,7 +645,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
     else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { ir(atual - 1); e.preventDefault(); }
     else if (e.key === 'Home') ir(0);
     else if (e.key === 'End') ir(total - 1);
-    else if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey) estudo(notas.hidden);
+    else if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey && !document.fullscreenElement) estudo(notas.hidden);
     else if (e.key.toLowerCase() === 'f' && !e.ctrlKey && !e.metaKey) telaCheia();
   });
 
