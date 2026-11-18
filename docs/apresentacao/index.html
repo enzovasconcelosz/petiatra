@@ -149,7 +149,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
 
 /* controles */
 .controles { display: flex; align-items: center; gap: 10px; width: min(100%, calc((100dvh - 150px - env(safe-area-inset-top, 0px)) * 16 / 9)); }
-.progresso { flex: 1; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 4px; }
+.progresso { flex: 1; display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 4px; }
 .progresso button { height: 8px; border: 0; border-radius: 4px; background: var(--line); padding: 0; }
 .progresso button.feito { background: var(--brand); opacity: 0.45; }
 .progresso button.atual { background: var(--brand); }
@@ -191,7 +191,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
 
 <header class="topbar">
   <div class="marca"><img src="img/icone.svg" alt=""> Petiatra <small>Parte I · apresentação</small></div>
-  <span class="contador" id="contador" aria-live="polite">1 / 12</span>
+  <span class="contador" id="contador" aria-live="polite">1 / 11</span>
   <button class="btn btn-estudo" id="btn-estudo" aria-pressed="false" aria-controls="notas" title="Atalho: E">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5"/><path d="M9 7h6M9 11h6"/></svg>
     <span id="btn-estudo-texto">Estudar o que falar</span>
@@ -222,7 +222,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
       </article>
 
       <!-- 2 -->
-      <article class="slide" data-inicio="0:40" data-fim="1:10" data-alvo="30" data-nome="Problema e objetivo">
+      <article class="slide" data-inicio="0:40" data-fim="1:30" data-alvo="50" data-nome="Problema e objetivo">
         <span class="rotulo">Introdução</span>
         <h2>Fichas de papel, planilhas e WhatsApp não dão conta da clínica</h2>
         <div class="cartoes">
@@ -237,46 +237,13 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
             <li>Como as clínicas pequenas trabalham hoje: papel, planilha e WhatsApp.</li>
             <li>As três consequências dos cartões, com um exemplo do dia a dia.</li>
             <li>O objetivo do sistema, lendo o quadro de destaque com as suas palavras.</li>
-          </ul>
-          <p class="gancho">Gancho: “e quem vai usar isso no dia a dia?”</p>
-        </template>
-      </article>
-
-      <!-- 3 -->
-      <article class="slide" data-inicio="1:10" data-fim="1:30" data-alvo="20" data-nome="Para quem">
-        <span class="rotulo">Público-alvo</span>
-        <h2>Um sistema para quem está começando e para quem usa todo dia</h2>
-        <div class="perfis">
-          <div class="perfil">
-            <h3>Quem está começando</h3>
-            <ul>
-              <li>Assistente “Novo atendimento”: tutor, pet e consulta em 3 passos</li>
-              <li>Campos essenciais primeiro; o resto em “Mais detalhes”</li>
-              <li>Ajuda nos campos e confirmação antes de excluir</li>
-            </ul>
-          </div>
-          <div class="perfil">
-            <h3>Quem usa todo dia</h3>
-            <ul>
-              <li>Busca rápida com <span class="kbd">/</span> ou <span class="kbd">Ctrl</span>+<span class="kbd">K</span></li>
-              <li>Atalho <span class="kbd">N</span> para novo registro</li>
-              <li>Filtros guardados e “Salvar e cadastrar outro”</li>
-            </ul>
-          </div>
-        </div>
-        <p class="sub">No celular: menu na barra inferior, botões de no mínimo 44 px e tabelas que viram cartões.</p>
-        <template class="falas">
-          <h4>Pontos a falar</h4>
-          <ul>
-            <li>O usuário é o veterinário, com dois perfis de experiência.</li>
-            <li>Um exemplo de cada lado: o assistente guiado e o atalho de busca.</li>
-            <li>Funciona no celular, porque o veterinário nem sempre está no computador.</li>
+            <li>Para quem é: o veterinário, tanto quem está começando (assistente passo a passo) quanto quem usa todo dia (busca rápida e atalhos). Funciona também no celular.</li>
           </ul>
           <p class="gancho">Gancho: “para construir isso, escolhi estas tecnologias.”</p>
         </template>
       </article>
 
-      <!-- 4 -->
+      <!-- 3 -->
       <article class="slide" data-inicio="1:30" data-fim="2:20" data-alvo="50" data-nome="Tecnologias">
         <span class="rotulo">Stack</span>
         <h2>Tudo em C#, no padrão MVC nativo do .NET</h2>
@@ -302,7 +269,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 5 -->
+      <!-- 4 -->
       <article class="slide" data-inicio="2:20" data-fim="3:30" data-alvo="70" data-nome="Requisitos">
         <span class="rotulo">Requisitos</span>
         <h2>14 requisitos funcionais, 7 regras de negócio e 12 não funcionais</h2>
@@ -329,7 +296,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 6 -->
+      <!-- 5 -->
       <article class="slide" data-inicio="3:30" data-fim="4:50" data-alvo="80" data-nome="Arquitetura">
         <span class="rotulo">Arquitetura</span>
         <h2>MVC em camadas, com SOLID e Clean Code</h2>
@@ -358,7 +325,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 7 -->
+      <!-- 6 -->
       <article class="slide" data-inicio="4:50" data-fim="5:40" data-alvo="50" data-nome="Casos de uso">
         <span class="rotulo">Diagrama de casos de uso</span>
         <h2>Um ator e cinco casos de uso</h2>
@@ -381,7 +348,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 8 -->
+      <!-- 7 -->
       <article class="slide" data-inicio="5:40" data-fim="6:30" data-alvo="50" data-nome="DER">
         <span class="rotulo">Diagrama entidade-relacionamento</span>
         <h2>Cinco tabelas, com o pet no centro</h2>
@@ -409,7 +376,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 9 -->
+      <!-- 8 -->
       <article class="slide" data-inicio="6:30" data-fim="7:15" data-alvo="45" data-nome="Atividade">
         <span class="rotulo">Diagrama de atividade</span>
         <h2>Agendar consulta: três verificações antes de gravar</h2>
@@ -435,7 +402,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 10 -->
+      <!-- 9 -->
       <article class="slide" data-inicio="7:15" data-fim="8:00" data-alvo="45" data-nome="Classes">
         <span class="rotulo">Diagrama de classes</span>
         <h2>Cinco entidades e quatro enums</h2>
@@ -462,7 +429,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 11 -->
+      <!-- 10 -->
       <article class="slide" data-inicio="8:00" data-fim="9:00" data-alvo="60" data-nome="Sequência">
         <span class="rotulo">Diagramas de sequência · UC04</span>
         <h2>Agendar consulta, da tela ao banco</h2>
@@ -483,7 +450,7 @@ code { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-siz
         </template>
       </article>
 
-      <!-- 12 -->
+      <!-- 11 -->
       <article class="slide" data-inicio="9:00" data-fim="9:30" data-alvo="30" data-nome="Conclusão">
         <span class="rotulo">Conclusão</span>
         <h2>Modelar antes de programar evita retrabalho</h2>
