@@ -1,0 +1,48 @@
+@model AtendimentoFormViewModel
+@{
+    var consulta = Model.Consulta!;
+    ViewData["Title"] = $"Atendimento de {consulta.Pet?.Nome}";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Detalhes" asp-route-id="@consulta.Id">Consulta de @consulta.Pet?.Nome</a></div>
+        <h1>Registrar atendimento</h1>
+        <p>@consulta.Pet?.Nome (@consulta.Pet?.Especie.Rotulo()) · @Formatos.DataHora(consulta.DataHora) · @consulta.Motivo</p>
+    </div>
+</div>
+
+<div class="card cartao-formulario">
+    <div class="card-body">
+        <form asp-action="Atender" asp-route-id="@consulta.Id" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Diagnostico" class="form-label obrigatorio"></label>
+                <textarea asp-for="Diagnostico" class="form-control" rows="4" autofocus></textarea>
+                <span asp-validation-for="Diagnostico"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Tratamento" class="form-label obrigatorio"></label>
+                <textarea asp-for="Tratamento" class="form-control" rows="4" placeholder="Medicamentos, doses, cuidados e retorno"></textarea>
+                <span asp-validation-for="Tratamento"></span>
+            </div>
+            <div class="col-sm-5">
+                <label asp-for="Valor" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">R$</span>
+                    <input asp-for="Valor" class="form-control" inputmode="decimal" placeholder="0,00" value="@(Model.Valor is null ? "" : Model.Valor.Value.ToString("0.00"))" />
+                </div>
+                <span asp-validation-for="Valor"></span>
+            </div>
+
+            <div class="barra-botoes">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Salvar atendimento</button>
+                <a class="btn btn-link" asp-action="Detalhes" asp-route-id="@consulta.Id">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

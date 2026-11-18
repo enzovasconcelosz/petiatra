@@ -1,0 +1,40 @@
+@model PetFormViewModel
+@{
+    var novo = Model.Id == 0;
+    ViewData["Title"] = novo ? "Novo pet" : $"Editar {Model.Nome}";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Index">Pets</a></div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Campos com * são obrigatórios.</p>
+    </div>
+</div>
+
+<div class="card cartao-formulario">
+    <div class="card-body">
+        <form asp-action="@(novo ? "Criar" : "Editar")" asp-route-id="@(novo ? null : Model.Id.ToString())" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <partial name="_SeletorBusca" model="@(new SeletorBuscaViewModel(nameof(Model.TutorId), "Tutor", Url.Action("Tutores", "Busca")!, Model.TutorId, Model.TutorDescricao,
+                    "Digite o nome ou CPF do tutor", "O tutor precisa estar cadastrado antes.", "Selecione o tutor."))" />
+            </div>
+
+            <partial name="_CamposPet" model="Model" />
+
+            <div class="barra-botoes">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Salvar</button>
+                @if (novo)
+                {
+                    <button type="submit" name="acao" value="outro" class="btn btn-outline-primary">Salvar e cadastrar outro</button>
+                }
+                <a class="btn btn-link" href="@(novo ? Url.Action("Index") : Url.Action("Detalhes", new { id = Model.Id }))">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

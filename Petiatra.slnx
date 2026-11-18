@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Petiatra.Web/Petiatra.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Petiatra.Tests/Petiatra.Tests.csproj" />
+  </Folder>
+</Solution>

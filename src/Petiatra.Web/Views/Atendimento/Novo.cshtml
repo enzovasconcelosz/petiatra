@@ -1,0 +1,155 @@
+@model NovoAtendimentoViewModel
+@{
+    ViewData["Title"] = "Novo atendimento";
+    var camposComErro = ViewData.ModelState.Where(e => e.Value?.Errors.Count > 0).Select(e => e.Key).ToList();
+    var passoInicial = camposComErro.Any(k => k.StartsWith("Tutor.")) ? 0
+        : camposComErro.Any(k => k.StartsWith("Pet.")) ? 1
+        : camposComErro.Count > 0 ? 2 : 0;
+    var tutorNovo = !Model.UsaTutorExistente && !string.IsNullOrEmpty(Model.Tutor.Nome);
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Novo atendimento</h1>
+        <p>Cadastre o tutor, o pet e agende a consulta em 3 passos.</p>
+    </div>
+</div>
+
+<form asp-action="Novo" method="post" novalidate class="cartao-formulario" data-assistente data-passo-inicial="@passoInicial">
+    <ol class="passos" aria-label="Passos">
+        <li data-indicador><span>Tutor</span></li>
+        <li data-indicador><span>Pet</span></li>
+        <li data-indicador><span>Consulta</span></li>
+    </ol>
+
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    @* Passo 1: tutor *@
+    <section class="card passo" data-passo aria-labelledby="titulo-passo-1">
+        <div class="card-body">
+            <h2 class="h5 mb-3" id="titulo-passo-1">1. Quem é o tutor?</h2>
+            <div class="escolha" role="radiogroup" aria-label="Tipo de cliente">
+                <input type="radio" class="btn-check" name="modoTutor" id="modo-existente" value="existente" checked="@(!tutorNovo)" />
+                <label class="btn btn-outline-primary" for="modo-existente"><span><i class="bi bi-person-check" aria-hidden="true"></i> Já é cliente</span><small>buscar pelo nome ou CPF</small></label>
+                <input type="radio" class="btn-check" name="modoTutor" id="modo-novo" value="novo" checked="@tutorNovo" />
+                <label class="btn btn-outline-primary" for="modo-novo"><span><i class="bi bi-person-plus" aria-hidden="true"></i> Cliente novo</span><small>cadastrar agora</small></label>
+            </div>
+
+            <div data-bloco="tutor-existente">
+                <partial name="_SeletorBusca" model="@(new SeletorBuscaViewModel(nameof(Model.TutorExistenteId), "Tutor", Url.Action("Tutores", "Busca")!, Model.TutorExistenteId ?? 0, Model.TutorExistenteDescricao,
+                    "Digite o nome ou CPF do tutor", "Escolha um nome da lista.", "Selecione o tutor.", Obrigatorio: false))" />
+            </div>
+
+            <fieldset data-bloco="tutor-novo">
+                <legend class="visually-hidden">Dados do novo tutor</legend>
+                <div class="mb-3">
+                    <label asp-for="Tutor.Nome" class="form-label obrigatorio"></label>
+                    <input asp-for="Tutor.Nome" class="form-control" autocomplete="off" />
+                    <span asp-validation-for="Tutor.Nome"></span>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label asp-for="Tutor.Cpf" class="form-label obrigatorio"></label>
+                        <input asp-for="Tutor.Cpf" class="form-control" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" />
+                        <span asp-validation-for="Tutor.Cpf"></span>
+                    </div>
+                    <div class="col-sm-6">
+                        <label asp-for="Tutor.Telefone" class="form-label obrigatorio"></label>
+                        <input asp-for="Tutor.Telefone" class="form-control" type="tel" inputmode="tel" placeholder="(43) 99999-0000" />
+                        <span asp-validation-for="Tutor.Telefone"></span>
+                    </div>
+                </div>
+                <details class="mais-detalhes mt-3" open="@(Model.Tutor.TemDetalhes ? "open" : null)">
+                    <summary>Mais detalhes (opcional)</summary>
+                    <div class="mb-3">
+                        <label asp-for="Tutor.Email" class="form-label"></label>
+                        <input asp-for="Tutor.Email" class="form-control" type="email" inputmode="email" />
+                        <span asp-validation-for="Tutor.Email"></span>
+                    </div>
+                    <div>
+                        <label asp-for="Tutor.Endereco" class="form-label"></label>
+                        <input asp-for="Tutor.Endereco" class="form-control" />
+                        <span asp-validation-for="Tutor.Endereco"></span>
+                    </div>
+                </details>
+            </fieldset>
+
+            <p class="field-validation-error mt-2" data-erro-passo="tutor" role="alert" hidden></p>
+            <div class="barra-botoes">
+                <button type="button" class="btn btn-primary" data-avancar>Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </section>
+
+    @* Passo 2: pet *@
+    <section class="card passo" data-passo aria-labelledby="titulo-passo-2">
+        <div class="card-body">
+            <h2 class="h5 mb-3" id="titulo-passo-2">2. Qual pet será atendido?</h2>
+            <div class="lista-escolha mb-3" data-lista-pets data-selecionado="@Model.PetExistenteId">
+                @if (Model.PetsDoTutor.Count > 0)
+                {
+                    foreach (var pet in Model.PetsDoTutor)
+                    {
+                        <label><input type="radio" name="PetExistenteId" value="@pet.Id" checked="@(Model.PetExistenteId == pet.Id)" /> @pet.Nome (@pet.Especie.Rotulo())</label>
+                    }
+                    <label><input type="radio" name="PetExistenteId" value="" checked="@(!Model.UsaPetExistente)" /> <i class="bi bi-plus-circle" aria-hidden="true"></i> Cadastrar outro pet</label>
+                }
+            </div>
+
+            <fieldset data-bloco="pet-novo">
+                <legend class="h6 text-secondary">Dados do pet</legend>
+                <partial name="_CamposPet" for="Pet" />
+            </fieldset>
+
+            <p class="field-validation-error mt-2" data-erro-passo="pet" role="alert" hidden></p>
+            <div class="barra-botoes">
+                <button type="button" class="btn btn-outline-secondary" data-voltar><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar</button>
+                <button type="button" class="btn btn-primary" data-avancar>Continuar <i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+            </div>
+        </div>
+    </section>
+
+    @* Passo 3: consulta *@
+    <section class="card passo" data-passo aria-labelledby="titulo-passo-3">
+        <div class="card-body">
+            <h2 class="h5 mb-3" id="titulo-passo-3">3. Quando será a consulta?</h2>
+            <div class="mb-3">
+                <label asp-for="VeterinarioId" class="form-label obrigatorio"></label>
+                <select asp-for="VeterinarioId" class="form-select">
+                    <option value="0">Escolha...</option>
+                    @foreach (var veterinario in Model.Veterinarios)
+                    {
+                        <option value="@veterinario.Id">@veterinario.Nome</option>
+                    }
+                </select>
+                <span asp-validation-for="VeterinarioId"></span>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="Data" class="form-label obrigatorio"></label>
+                    <input asp-for="Data" class="form-control" type="date" />
+                    <span asp-validation-for="Data"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Hora" class="form-label obrigatorio"></label>
+                    <input asp-for="Hora" class="form-control" type="time" />
+                    <span asp-validation-for="Hora"></span>
+                </div>
+            </div>
+            <div class="horarios-ocupados mt-2" data-ocupados data-veterinario="VeterinarioId" data-data="Data" aria-live="polite"></div>
+            <div class="mt-3">
+                <label asp-for="Motivo" class="form-label obrigatorio"></label>
+                <input asp-for="Motivo" class="form-control" placeholder="Ex.: vacinação, check-up, vômitos" />
+                <span asp-validation-for="Motivo"></span>
+            </div>
+
+            <div class="barra-botoes">
+                <button type="button" class="btn btn-outline-secondary" data-voltar><i class="bi bi-arrow-left" aria-hidden="true"></i> Voltar</button>
+                <button type="submit" class="btn btn-primary"><i class="bi bi-calendar-check" aria-hidden="true"></i> Agendar consulta</button>
+            </div>
+        </div>
+    </section>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

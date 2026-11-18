@@ -1,0 +1,146 @@
+@model PainelViewModel
+@inject TimeProvider Relogio
+@{
+    ViewData["Title"] = "Painel";
+    var hora = Relogio.GetLocalNow().Hour;
+    var saudacao = hora < 12 ? "Bom dia" : hora < 18 ? "Boa tarde" : "Boa noite";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>@saudacao, @User.ObterPrimeiroNome()!</h1>
+        <p class="text-capitalize-first">@Formatos.DiaPorExtenso(Model.Hoje)</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-outline-primary" asp-controller="Consultas" asp-action="Criar"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Agendar consulta</a>
+        <a class="btn btn-primary" asp-controller="Atendimento" asp-action="Novo"><i class="bi bi-plus-lg" aria-hidden="true"></i> Novo atendimento</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <a class="card indicador" asp-controller="Consultas" asp-action="Index" asp-route-data="@Model.Hoje.ToString("yyyy-MM-dd")">
+            <span class="icone" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
+            <span><span class="numero d-block">@Model.ConsultasDoDia.Count</span><span class="rotulo">consultas hoje</span></span>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="card indicador" asp-controller="Vacinas" asp-action="Index" asp-route-situacao="@FiltroSituacaoVacina.Atrasadas">
+            <span class="icone @(Model.TotalVacinasAtrasadas > 0 ? "alerta" : "")" aria-hidden="true"><i class="bi bi-exclamation-diamond"></i></span>
+            <span><span class="numero d-block">@Model.TotalVacinasAtrasadas</span><span class="rotulo">vacinas atrasadas</span></span>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="card indicador" asp-controller="Tutores" asp-action="Index">
+            <span class="icone" aria-hidden="true"><i class="bi bi-people"></i></span>
+            <span><span class="numero d-block">@Model.TotalTutores</span><span class="rotulo">tutores</span></span>
+        </a>
+    </div>
+    <div class="col-6 col-lg-3">
+        <a class="card indicador" asp-controller="Pets" asp-action="Index">
+            <span class="icone" aria-hidden="true"><i class="bi bi-heart-pulse"></i></span>
+            <span><span class="numero d-block">@Model.TotalPets</span><span class="rotulo">pets</span></span>
+        </a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="titulo-agenda">
+            <div class="card-header">
+                <h2 id="titulo-agenda"><i class="bi bi-calendar-week text-primary" aria-hidden="true"></i> Agenda de hoje</h2>
+                <span class="texto-secundario">@Model.ConsultasAgendadasHoje a atender</span>
+            </div>
+            @if (Model.ConsultasDoDia.Count == 0)
+            {
+                <div class="estado-vazio">
+                    <i class="bi bi-cup-hot" aria-hidden="true"></i>
+                    Nenhuma consulta marcada para hoje.
+                    <div class="mt-2"><a asp-controller="Consultas" asp-action="Criar">Agendar uma consulta</a></div>
+                </div>
+            }
+            else
+            {
+                <ul class="lista-itens">
+                    @foreach (var consulta in Model.ConsultasDoDia)
+                    {
+                        <li>
+                            <span class="hora">@Formatos.Hora(consulta.DataHora)</span>
+                            <div class="principal">
+                                <a asp-controller="Consultas" asp-action="Detalhes" asp-route-id="@consulta.Id">@consulta.Pet?.Nome</a>
+                                <span class="texto-secundario">· @consulta.Motivo</span>
+                                <div class="texto-secundario">Tutor: @consulta.Pet?.Tutor?.Nome · @consulta.Veterinario?.Nome</div>
+                            </div>
+                            @if (consulta.Status == StatusConsulta.Agendada)
+                            {
+                                <a class="btn btn-sm btn-primary" asp-controller="Consultas" asp-action="Atender" asp-route-id="@consulta.Id">Atender</a>
+                            }
+                            else
+                            {
+                                <span class="@Selos.Classe(consulta.Status)">@consulta.Status.Rotulo()</span>
+                            }
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+
+    <div class="col-lg-5 d-flex flex-column gap-3">
+        <section class="card" aria-labelledby="titulo-atrasadas">
+            <div class="card-header">
+                <h2 id="titulo-atrasadas"><i class="bi bi-exclamation-diamond text-danger" aria-hidden="true"></i> Vacinas atrasadas</h2>
+                <a class="small" asp-controller="Vacinas" asp-action="Index" asp-route-situacao="@FiltroSituacaoVacina.Atrasadas">Ver todas</a>
+            </div>
+            @if (Model.VacinasAtrasadas.Count == 0)
+            {
+                <div class="estado-vazio"><i class="bi bi-shield-check" aria-hidden="true"></i>Nenhuma vacina atrasada.</div>
+            }
+            else
+            {
+                <ul class="lista-itens">
+                    @foreach (var vacina in Model.VacinasAtrasadas)
+                    {
+                        <li>
+                            <span class="inicial" aria-hidden="true">@vacina.Pet?.Nome.FirstOrDefault()</span>
+                            <div class="principal">
+                                <a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@vacina.PetId">@vacina.Pet?.Nome</a>
+                                <span class="texto-secundario">· @vacina.Nome</span>
+                                <div class="texto-secundario">Venceu em @Formatos.Data(vacina.DataReforco) · @vacina.Pet?.Tutor?.Nome</div>
+                            </div>
+                            <a class="btn btn-sm btn-outline-secondary" href="tel:@Documento.SomenteDigitos(vacina.Pet?.Tutor?.Telefone)" aria-label="Ligar para @vacina.Pet?.Tutor?.Nome">
+                                <i class="bi bi-telephone" aria-hidden="true"></i><span class="d-none d-xl-inline">Avisar</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+
+        <section class="card" aria-labelledby="titulo-reforcos">
+            <div class="card-header">
+                <h2 id="titulo-reforcos"><i class="bi bi-calendar2-event text-primary" aria-hidden="true"></i> Reforços nos próximos 30 dias</h2>
+                <a class="small" asp-controller="Vacinas" asp-action="Index" asp-route-situacao="@FiltroSituacaoVacina.ProximosReforcos">Ver todos</a>
+            </div>
+            @if (Model.ProximosReforcos.Count == 0)
+            {
+                <div class="estado-vazio"><i class="bi bi-calendar2-check" aria-hidden="true"></i>Nenhum reforço previsto.</div>
+            }
+            else
+            {
+                <ul class="lista-itens">
+                    @foreach (var vacina in Model.ProximosReforcos)
+                    {
+                        <li>
+                            <span class="inicial" aria-hidden="true">@vacina.Pet?.Nome.FirstOrDefault()</span>
+                            <div class="principal">
+                                <a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@vacina.PetId">@vacina.Pet?.Nome</a>
+                                <span class="texto-secundario">· @vacina.Nome</span>
+                                <div class="texto-secundario">Reforço em @Formatos.Data(vacina.DataReforco) · @vacina.Pet?.Tutor?.Nome</div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>

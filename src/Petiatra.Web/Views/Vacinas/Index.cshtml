@@ -1,0 +1,99 @@
+@model VacinasIndexViewModel
+@{
+    ViewData["Title"] = "Vacinas";
+    var filtro = Model.Filtro;
+    var atrasadas = filtro.Situacao == FiltroSituacaoVacina.Atrasadas;
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Vacinas</h1>
+        <p>Doses aplicadas e reforços de todos os pets.</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-action="Criar" data-atalho-novo>
+            <i class="bi bi-shield-plus" aria-hidden="true"></i> Registrar vacina <kbd class="d-none d-lg-inline">N</kbd>
+        </a>
+    </div>
+</div>
+
+<nav class="chips" aria-label="Situação">
+    <a class="chip @(filtro.Situacao == FiltroSituacaoVacina.Todas ? "ativo" : "")" asp-action="Index" asp-route-busca="@filtro.Busca">Todas</a>
+    <a class="chip @(atrasadas ? "ativo" : "")" asp-action="Index" asp-route-situacao="@FiltroSituacaoVacina.Atrasadas" asp-route-busca="@filtro.Busca">
+        <i class="bi bi-exclamation-diamond" aria-hidden="true"></i> Atrasadas
+    </a>
+    <a class="chip @(filtro.Situacao == FiltroSituacaoVacina.ProximosReforcos ? "ativo" : "")" asp-action="Index" asp-route-situacao="@FiltroSituacaoVacina.ProximosReforcos" asp-route-busca="@filtro.Busca">
+        <i class="bi bi-calendar2-event" aria-hidden="true"></i> Reforços nos próximos 30 dias
+    </a>
+</nav>
+
+<form class="filtros" method="get" role="search">
+    <input type="hidden" name="situacao" value="@filtro.Situacao" />
+    <div class="campo-busca">
+        <label for="busca" class="visually-hidden">Buscar por vacina, pet ou tutor</label>
+        <input id="busca" name="busca" type="search" class="form-control" value="@filtro.Busca" placeholder="Vacina, pet ou tutor" />
+    </div>
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+</form>
+
+@if (atrasadas && Model.Pagina.TotalItens > 0)
+{
+    <div class="alert alert-warning d-flex gap-2" role="note">
+        <i class="bi bi-telephone-outbound" aria-hidden="true"></i>
+        <div>Estes pets estão com o reforço vencido. Entre em contato com os tutores para agendar a vacina.</div>
+    </div>
+}
+
+@if (Model.Pagina.TotalItens == 0)
+{
+    <div class="card estado-vazio">
+        <i class="bi bi-shield-check" aria-hidden="true"></i>
+        @(atrasadas ? "Nenhuma vacina atrasada. Tudo em dia!" : "Nenhuma vacina encontrada.")
+    </div>
+}
+else
+{
+    <div class="card">
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">Pet</th>
+                    <th scope="col">Vacina</th>
+                    <th scope="col">Aplicação</th>
+                    <th scope="col">Reforço</th>
+                    <th scope="col">Situação</th>
+                    <th scope="col">@(atrasadas ? "Contato" : "Tutor")</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Pagina.Itens)
+                {
+                    var vacina = item.Vacina;
+                    var situacao = vacina.ObterSituacao(Model.Hoje, item.ReforcoAplicado);
+                    <tr>
+                        <td class="td-principal"><a class="fw-semibold" asp-controller="Pets" asp-action="Detalhes" asp-route-id="@vacina.PetId">@vacina.Pet?.Nome</a></td>
+                        <td data-rotulo="Vacina">@vacina.Nome</td>
+                        <td data-rotulo="Aplicação">@Formatos.Data(vacina.DataAplicacao)</td>
+                        <td data-rotulo="Reforço">@Formatos.Data(vacina.DataReforco)</td>
+                        <td data-rotulo="Situação"><span class="@Selos.Classe(situacao)">@situacao.Rotulo()</span></td>
+                        <td data-rotulo="@(atrasadas ? "Contato" : "Tutor")">
+                            @vacina.Pet?.Tutor?.Nome
+                            @if (atrasadas)
+                            {
+                                <div><a href="tel:@Documento.SomenteDigitos(vacina.Pet?.Tutor?.Telefone)">@vacina.Pet?.Tutor?.Telefone</a></div>
+                            }
+                        </td>
+                        <td class="td-acoes">
+                            @if (atrasadas)
+                            {
+                                <a class="btn btn-sm btn-primary" asp-action="Criar" asp-route-petId="@vacina.PetId">Registrar reforço</a>
+                            }
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Editar" asp-route-id="@vacina.Id" aria-label="Editar vacina @vacina.Nome de @vacina.Pet?.Nome"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Paginacao" model="Model.Pagina" />
+}

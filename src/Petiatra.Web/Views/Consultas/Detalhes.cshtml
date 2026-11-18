@@ -1,0 +1,68 @@
+@model Consulta
+@{
+    ViewData["Title"] = $"Consulta de {Model.Pet?.Nome}";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Index">Consultas</a></div>
+        <h1>Consulta de @Model.Pet?.Nome</h1>
+        <p>@Formatos.DataHora(Model.DataHora) · <span class="@Selos.Classe(Model.Status)">@Model.Status.Rotulo()</span></p>
+    </div>
+    <div class="acoes">
+        @if (Model.Status == StatusConsulta.Agendada)
+        {
+            <a class="btn btn-primary" asp-action="Atender" asp-route-id="@Model.Id"><i class="bi bi-clipboard2-pulse" aria-hidden="true"></i> Registrar atendimento</a>
+            <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@Model.Id"><i class="bi bi-calendar-event" aria-hidden="true"></i> Reagendar</a>
+            <form asp-action="Cancelar" asp-route-id="@Model.Id" method="post" class="d-inline"
+                  onsubmit="return confirm('Cancelar esta consulta? O horário ficará livre para outro agendamento.');">
+                <button type="submit" class="btn btn-outline-warning"><i class="bi bi-x-circle" aria-hidden="true"></i> Cancelar consulta</button>
+            </form>
+        }
+        else if (Model.Status == StatusConsulta.Realizada)
+        {
+            <a class="btn btn-outline-secondary" asp-action="Atender" asp-route-id="@Model.Id"><i class="bi bi-pencil" aria-hidden="true"></i> Editar atendimento</a>
+        }
+        <a class="btn btn-outline-danger" asp-action="Excluir" asp-route-id="@Model.Id"><i class="bi bi-trash3" aria-hidden="true"></i> Excluir</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="titulo-agendamento">
+            <div class="card-header"><h2 id="titulo-agendamento"><i class="bi bi-calendar-check text-primary" aria-hidden="true"></i> Agendamento</h2></div>
+            <div class="card-body">
+                <dl class="dados">
+                    <dt>Pet</dt><dd><a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@Model.PetId">@Model.Pet?.Nome</a> (@Model.Pet?.Especie.Rotulo())</dd>
+                    <dt>Tutor</dt><dd>@Model.Pet?.Tutor?.Nome<br /><a href="tel:@Documento.SomenteDigitos(Model.Pet?.Tutor?.Telefone)">@Model.Pet?.Tutor?.Telefone</a></dd>
+                    <dt>Data e hora</dt><dd>@Formatos.DataHora(Model.DataHora)</dd>
+                    <dt>Veterinário</dt><dd>@Model.Veterinario?.Nome</dd>
+                    <dt>Motivo</dt><dd>@Model.Motivo</dd>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="titulo-atendimento">
+            <div class="card-header"><h2 id="titulo-atendimento"><i class="bi bi-journal-medical text-primary" aria-hidden="true"></i> Atendimento</h2></div>
+            <div class="card-body">
+                @if (Model.Status == StatusConsulta.Realizada)
+                {
+                    <dl class="dados">
+                        <dt>Diagnóstico</dt><dd class="text-pre">@Model.Diagnostico</dd>
+                        <dt>Tratamento</dt><dd class="text-pre">@Model.Tratamento</dd>
+                        <dt>Valor</dt><dd>@Formatos.Moeda(Model.Valor)</dd>
+                    </dl>
+                }
+                else if (Model.Status == StatusConsulta.Cancelada)
+                {
+                    <p class="text-secondary mb-0">Consulta cancelada. O horário foi liberado.</p>
+                }
+                else
+                {
+                    <p class="text-secondary">O atendimento ainda não foi registrado.</p>
+                    <a class="btn btn-primary" asp-action="Atender" asp-route-id="@Model.Id">Registrar atendimento</a>
+                }
+            </div>
+        </section>
+    </div>
+</div>

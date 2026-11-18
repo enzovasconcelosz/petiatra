@@ -1,0 +1,19 @@
+@model ErrorViewModel
+@{
+    var naoEncontrado = Model.Codigo == 404;
+    ViewData["Title"] = naoEncontrado ? "Página não encontrada" : "Algo deu errado";
+}
+<div class="estado-vazio my-5">
+    <i class="bi @(naoEncontrado ? "bi-signpost-split" : "bi-bandaid") display-4 text-secondary" aria-hidden="true"></i>
+    <h1 class="h3 mt-3">@ViewData["Title"]</h1>
+    <p class="text-secondary">
+        @(naoEncontrado
+            ? "O endereço não existe ou o registro foi excluído."
+            : "Não foi possível concluir a operação. Tente novamente em instantes.")
+    </p>
+    @if (Model.ShowRequestId)
+    {
+        <p class="small text-secondary">Código da ocorrência: <code>@Model.RequestId</code></p>
+    }
+    <a class="btn btn-primary" asp-controller="Painel" asp-action="Index">Voltar ao painel</a>
+</div>

@@ -1,0 +1,87 @@
+@model VacinaFormViewModel
+@{
+    var novo = Model.Id == 0;
+    ViewData["Title"] = novo ? "Registrar vacina" : "Editar vacina";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Index">Vacinas</a></div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Campos com * são obrigatórios.</p>
+    </div>
+</div>
+
+<div class="card cartao-formulario">
+    <div class="card-body">
+        <form asp-action="@(novo ? "Criar" : "Editar")" asp-route-id="@(novo ? null : Model.Id.ToString())" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <partial name="_SeletorBusca" model="@(new SeletorBuscaViewModel(nameof(Model.PetId), "Pet", Url.Action("Pets", "Busca")!, Model.PetId, Model.PetDescricao,
+                    "Digite o nome do pet ou do tutor", "A dose entra na carteira de vacinação do pet.", "Selecione o pet."))" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label obrigatorio"></label>
+                <input asp-for="Nome" class="form-control" list="nomes-vacinas" autocomplete="off" placeholder="Ex.: Antirrábica" />
+                <datalist id="nomes-vacinas">
+                    @foreach (var nome in Model.NomesSugeridos)
+                    {
+                        <option value="@nome"></option>
+                    }
+                </datalist>
+                <span asp-validation-for="Nome"></span>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="DataAplicacao" class="form-label obrigatorio"></label>
+                    <input asp-for="DataAplicacao" class="form-control" type="date" />
+                    <span asp-validation-for="DataAplicacao"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="DataReforco" class="form-label"></label>
+                    <input asp-for="DataReforco" class="form-control" type="date" aria-describedby="ajuda-reforco" />
+                    <div id="ajuda-reforco" class="form-text d-flex flex-wrap gap-1 align-items-center">
+                        Deixe em branco se for dose única. Preencher:
+                        <button type="button" class="btn btn-sm btn-link p-0 px-1" data-somar-dias="21" data-origem="DataAplicacao" data-destino="DataReforco">+21 dias</button>
+                        <button type="button" class="btn btn-sm btn-link p-0 px-1" data-somar-dias="365" data-origem="DataAplicacao" data-destino="DataReforco">+1 ano</button>
+                    </div>
+                    <span asp-validation-for="DataReforco"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mt-0">
+                <div class="col-sm-6">
+                    <label asp-for="VeterinarioId" class="form-label obrigatorio"></label>
+                    <select asp-for="VeterinarioId" class="form-select">
+                        <option value="0">Escolha...</option>
+                        @foreach (var veterinario in Model.Veterinarios)
+                        {
+                            <option value="@veterinario.Id">@veterinario.Nome</option>
+                        }
+                    </select>
+                    <span asp-validation-for="VeterinarioId"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Lote" class="form-label"></label>
+                    <input asp-for="Lote" class="form-control" placeholder="Opcional" />
+                    <span asp-validation-for="Lote"></span>
+                </div>
+            </div>
+
+            <div class="barra-botoes">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Salvar</button>
+                @if (novo)
+                {
+                    <button type="submit" name="acao" value="outro" class="btn btn-outline-primary">Salvar e registrar outra</button>
+                }
+                <a class="btn btn-link" href="@(Model.PetId > 0 ? Url.Action("Detalhes", "Pets", new { id = Model.PetId }) : Url.Action("Index"))">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

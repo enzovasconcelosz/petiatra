@@ -1,0 +1,126 @@
+@model ConsultasIndexViewModel
+@{
+    ViewData["Title"] = "Consultas";
+    var filtro = Model.Filtro;
+    string Iso(DateOnly data) => data.ToString("yyyy-MM-dd");
+    string? UrlDia(DateOnly? data) => Url.Action("Index", new
+    {
+        data = data is null ? "" : Iso(data.Value),
+        veterinarioId = filtro.VeterinarioId,
+        status = filtro.Status,
+        busca = filtro.Busca
+    });
+    var titulo = filtro.Data switch
+    {
+        null => "Todas as consultas",
+        var d when d == Model.Hoje => "Agenda de hoje",
+        var d when d == Model.Hoje.AddDays(1) => "Agenda de amanhã",
+        var d => $"Agenda de {Formatos.Data(d)}"
+    };
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Consultas</h1>
+        <p>@titulo</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-action="Criar" asp-route-data="@(filtro.Data is null ? null : Iso(filtro.Data.Value))" data-atalho-novo>
+            <i class="bi bi-calendar-plus" aria-hidden="true"></i> Agendar consulta <kbd class="d-none d-lg-inline">N</kbd>
+        </a>
+    </div>
+</div>
+
+<div class="chips" aria-label="Atalhos de data">
+    @if (filtro.Data is { } dataAtual)
+    {
+        <a class="chip" href="@UrlDia(dataAtual.AddDays(-1))" aria-label="Dia anterior"><i class="bi bi-chevron-left" aria-hidden="true"></i></a>
+    }
+    <a class="chip @(filtro.Data == Model.Hoje ? "ativo" : "")" href="@UrlDia(Model.Hoje)">Hoje</a>
+    <a class="chip @(filtro.Data == Model.Hoje.AddDays(1) ? "ativo" : "")" href="@UrlDia(Model.Hoje.AddDays(1))">Amanhã</a>
+    <a class="chip @(filtro.Data is null ? "ativo" : "")" href="@UrlDia(null)">Todas as datas</a>
+    @if (filtro.Data is { } dataAtual2)
+    {
+        <a class="chip" href="@UrlDia(dataAtual2.AddDays(1))" aria-label="Próximo dia"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+    }
+</div>
+
+<form class="filtros" method="get" role="search">
+    <div>
+        <label for="data" class="form-label small mb-1">Data</label>
+        <input id="data" name="data" type="date" class="form-control" value="@(filtro.Data is null ? "" : Iso(filtro.Data.Value))" />
+    </div>
+    <div>
+        <label for="veterinarioId" class="form-label small mb-1">Veterinário</label>
+        <select id="veterinarioId" name="veterinarioId" class="form-select">
+            <option value="">Todos</option>
+            @foreach (var veterinario in Model.Veterinarios)
+            {
+                <option value="@veterinario.Id" selected="@(filtro.VeterinarioId == veterinario.Id)">@veterinario.Nome</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label for="status" class="form-label small mb-1">Situação</label>
+        <select id="status" name="status" class="form-select">
+            <option value="">Todas</option>
+            @foreach (var status in Enum.GetValues<StatusConsulta>())
+            {
+                <option value="@status" selected="@(filtro.Status == status)">@status.Rotulo()</option>
+            }
+        </select>
+    </div>
+    <div class="campo-busca">
+        <label for="busca" class="form-label small mb-1">Pet, tutor ou motivo</label>
+        <input id="busca" name="busca" type="search" class="form-control" value="@filtro.Busca" />
+    </div>
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-funnel" aria-hidden="true"></i> Filtrar</button>
+</form>
+
+@if (Model.Pagina.TotalItens == 0)
+{
+    <div class="card estado-vazio">
+        <i class="bi bi-calendar" aria-hidden="true"></i>
+        Nenhuma consulta encontrada.
+        <div class="mt-2"><a asp-action="Criar" asp-route-data="@(filtro.Data is null ? null : Iso(filtro.Data.Value))">Agendar consulta</a></div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">@(filtro.Data is null ? "Data e hora" : "Hora")</th>
+                    <th scope="col">Pet</th>
+                    <th scope="col">Motivo</th>
+                    <th scope="col">Veterinário</th>
+                    <th scope="col">Situação</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var consulta in Model.Pagina.Itens)
+                {
+                    <tr>
+                        <td class="td-principal fw-bold">@(filtro.Data is null ? Formatos.DataHora(consulta.DataHora) : Formatos.Hora(consulta.DataHora))</td>
+                        <td data-rotulo="Pet">
+                            <a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@consulta.PetId">@consulta.Pet?.Nome</a>
+                            <div class="texto-secundario">@consulta.Pet?.Tutor?.Nome</div>
+                        </td>
+                        <td data-rotulo="Motivo">@consulta.Motivo</td>
+                        <td data-rotulo="Veterinário">@consulta.Veterinario?.Nome</td>
+                        <td data-rotulo="Situação"><span class="@Selos.Classe(consulta.Status)">@consulta.Status.Rotulo()</span></td>
+                        <td class="td-acoes">
+                            @if (consulta.Status == StatusConsulta.Agendada)
+                            {
+                                <a class="btn btn-sm btn-primary" asp-action="Atender" asp-route-id="@consulta.Id">Atender</a>
+                            }
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalhes" asp-route-id="@consulta.Id">Abrir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Paginacao" model="Model.Pagina" />
+}

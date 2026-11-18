@@ -1,0 +1,21 @@
+<div class="modal fade" id="modal-busca" tabindex="-1" aria-labelledby="titulo-busca" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-lg modal-fullscreen-sm-down">
+        <div class="modal-content">
+            <form class="modal-header gap-2" asp-controller="Busca" asp-action="Index" method="get" role="search">
+                <h2 class="visually-hidden" id="titulo-busca">Busca rápida</h2>
+                <i class="bi bi-search text-secondary" aria-hidden="true"></i>
+                <label for="busca-rapida" class="visually-hidden">Buscar tutor, pet ou CPF</label>
+                <input id="busca-rapida" name="termo" type="search" class="form-control form-control-lg border-0 shadow-none px-1"
+                       placeholder="Buscar tutor, pet ou CPF" autocomplete="off"
+                       role="combobox" aria-expanded="false" aria-controls="busca-resultados" aria-autocomplete="list" />
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </form>
+            <div class="modal-body p-0">
+                <div id="busca-resultados" class="busca-resultados" role="listbox" aria-label="Resultados da busca"></div>
+                <p class="busca-dica text-secondary small px-3 py-3 mb-0" data-busca-dica>
+                    Digite pelo menos 2 letras. Use <kbd>↑</kbd> <kbd>↓</kbd> para escolher e <kbd>Enter</kbd> para abrir.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

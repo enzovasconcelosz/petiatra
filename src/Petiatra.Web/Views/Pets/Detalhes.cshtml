@@ -1,0 +1,133 @@
+@model FichaPetViewModel
+@{
+    var pet = Model.Pet;
+    ViewData["Title"] = $"Ficha de {pet.Nome}";
+}
+<div class="cabecalho-pagina">
+    <div class="d-flex align-items-center gap-3">
+        <span class="inicial grande" aria-hidden="true">@pet.Nome.FirstOrDefault()</span>
+        <div>
+            <div class="migalhas"><a asp-action="Index">Pets</a></div>
+            <h1>@pet.Nome</h1>
+            <p>@pet.Especie.Rotulo()@(pet.Raca is null ? "" : $" · {pet.Raca}") · @Model.Idade</p>
+        </div>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-controller="Consultas" asp-action="Criar" asp-route-petId="@pet.Id" data-atalho-novo><i class="bi bi-calendar-plus" aria-hidden="true"></i> Agendar consulta</a>
+        <a class="btn btn-outline-primary" asp-controller="Vacinas" asp-action="Criar" asp-route-petId="@pet.Id"><i class="bi bi-shield-plus" aria-hidden="true"></i> Registrar vacina</a>
+        <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@pet.Id"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+        <a class="btn btn-outline-danger" asp-action="Excluir" asp-route-id="@pet.Id"><i class="bi bi-trash3" aria-hidden="true"></i> Excluir</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="titulo-dados">
+            <div class="card-header"><h2 id="titulo-dados"><i class="bi bi-clipboard2-pulse text-primary" aria-hidden="true"></i> Dados do pet</h2></div>
+            <div class="card-body">
+                <dl class="dados">
+                    <dt>Espécie</dt><dd>@pet.Especie.Rotulo()</dd>
+                    <dt>Raça</dt><dd>@(pet.Raca ?? "Não informada")</dd>
+                    <dt>Sexo</dt><dd>@pet.Sexo.Rotulo()</dd>
+                    <dt>Idade</dt><dd>@Model.Idade@(pet.DataNascimento is null ? "" : $" (nasceu em {Formatos.Data(pet.DataNascimento)})")</dd>
+                    <dt>Peso</dt><dd>@(pet.PesoKg is null ? "Não informado" : $"{Formatos.Numero(pet.PesoKg)} kg")</dd>
+                    <dt>Observações</dt><dd>@(pet.Observacoes ?? "Nenhuma")</dd>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="titulo-tutor">
+            <div class="card-header"><h2 id="titulo-tutor"><i class="bi bi-person text-primary" aria-hidden="true"></i> Tutor</h2></div>
+            <div class="card-body">
+                @if (pet.Tutor is { } tutor)
+                {
+                    <p class="fs-5 fw-semibold mb-1"><a asp-controller="Tutores" asp-action="Detalhes" asp-route-id="@tutor.Id">@tutor.Nome</a></p>
+                    <p class="mb-1"><i class="bi bi-telephone" aria-hidden="true"></i> <a href="tel:@Documento.SomenteDigitos(tutor.Telefone)">@tutor.Telefone</a></p>
+                    <p class="mb-0 texto-secundario">CPF @Documento.FormatarCpf(tutor.Cpf)</p>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+<section class="card mb-3" aria-labelledby="titulo-vacinas">
+    <div class="card-header">
+        <h2 id="titulo-vacinas"><i class="bi bi-shield-check text-primary" aria-hidden="true"></i> Carteira de vacinação</h2>
+        <a class="btn btn-sm btn-outline-primary" asp-controller="Vacinas" asp-action="Criar" asp-route-petId="@pet.Id"><i class="bi bi-plus-lg" aria-hidden="true"></i> Registrar</a>
+    </div>
+    @if (Model.Vacinas.Count == 0)
+    {
+        <div class="estado-vazio"><i class="bi bi-shield" aria-hidden="true"></i>Nenhuma vacina registrada.</div>
+    }
+    else
+    {
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">Vacina</th>
+                    <th scope="col">Aplicação</th>
+                    <th scope="col">Reforço</th>
+                    <th scope="col">Situação</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Vacinas)
+                {
+                    <tr>
+                        <td class="td-principal fw-semibold">@item.Vacina.Nome @if (item.Vacina.Lote is not null) { <span class="texto-secundario fw-normal">· lote @item.Vacina.Lote</span> }</td>
+                        <td data-rotulo="Aplicação">@Formatos.Data(item.Vacina.DataAplicacao)</td>
+                        <td data-rotulo="Reforço">@Formatos.Data(item.Vacina.DataReforco)</td>
+                        <td data-rotulo="Situação"><span class="@Selos.Classe(item.Situacao)">@item.Situacao.Rotulo()</span></td>
+                        <td class="td-acoes">
+                            <a class="btn btn-sm btn-outline-secondary" asp-controller="Vacinas" asp-action="Editar" asp-route-id="@item.Vacina.Id" aria-label="Editar vacina @item.Vacina.Nome"><i class="bi bi-pencil" aria-hidden="true"></i></a>
+                            <a class="btn btn-sm btn-outline-danger" asp-controller="Vacinas" asp-action="Excluir" asp-route-id="@item.Vacina.Id" aria-label="Excluir vacina @item.Vacina.Nome"><i class="bi bi-trash3" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
+
+<section class="card" aria-labelledby="titulo-consultas">
+    <div class="card-header">
+        <h2 id="titulo-consultas"><i class="bi bi-journal-medical text-primary" aria-hidden="true"></i> Histórico de consultas</h2>
+        <a class="btn btn-sm btn-outline-primary" asp-controller="Consultas" asp-action="Criar" asp-route-petId="@pet.Id"><i class="bi bi-plus-lg" aria-hidden="true"></i> Agendar</a>
+    </div>
+    @if (Model.Consultas.Count == 0)
+    {
+        <div class="estado-vazio"><i class="bi bi-journal" aria-hidden="true"></i>Nenhuma consulta registrada.</div>
+    }
+    else
+    {
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">Data</th>
+                    <th scope="col">Motivo</th>
+                    <th scope="col">Diagnóstico</th>
+                    <th scope="col">Veterinário</th>
+                    <th scope="col">Situação</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var consulta in Model.Consultas)
+                {
+                    <tr>
+                        <td class="td-principal fw-semibold">@Formatos.DataHora(consulta.DataHora)</td>
+                        <td data-rotulo="Motivo">@consulta.Motivo</td>
+                        <td data-rotulo="Diagnóstico">@(consulta.Diagnostico ?? "—")</td>
+                        <td data-rotulo="Veterinário">@consulta.Veterinario?.Nome</td>
+                        <td data-rotulo="Situação"><span class="@Selos.Classe(consulta.Status)">@consulta.Status.Rotulo()</span></td>
+                        <td class="td-acoes">
+                            <a class="btn btn-sm btn-outline-primary" asp-controller="Consultas" asp-action="Detalhes" asp-route-id="@consulta.Id">Abrir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>

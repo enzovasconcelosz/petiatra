@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Petiatra</title>
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('petiatra-tema'); } catch (e) { }
+            var escuro = tema ? tema === 'escuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-bs-theme', escuro ? 'dark' : 'light');
+        })();
+    </script>
+    <link rel="icon" href="~/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="~/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0f766e" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <main class="tela-conta">
+        <div class="card cartao-conta">
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <img class="logo logo-claro" src="~/img/petiatra-logo.svg" alt="Petiatra" width="184" height="54" />
+                    <img class="logo logo-escuro" src="~/img/petiatra-logo-fundo-escuro.svg" alt="Petiatra" width="184" height="54" />
+                    <p class="text-secondary mt-2 mb-0">Gestão para clínicas veterinárias</p>
+                </div>
+                <partial name="_Mensagens" />
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

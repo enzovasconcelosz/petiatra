@@ -1,0 +1,44 @@
+@model LoginViewModel
+@inject IConfiguration Configuracao
+@{
+    ViewData["Title"] = "Entrar";
+    Layout = "_LayoutConta";
+}
+<h1 class="h4 mb-3">Entrar</h1>
+<form asp-action="Login" method="post" novalidate>
+    <input type="hidden" asp-for="ReturnUrl" />
+    <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+    <div class="mb-3">
+        <label asp-for="Email" class="form-label"></label>
+        <input asp-for="Email" class="form-control" autocomplete="username" autofocus inputmode="email" />
+        <span asp-validation-for="Email"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Senha" class="form-label"></label>
+        <input asp-for="Senha" class="form-control" autocomplete="current-password" />
+        <span asp-validation-for="Senha"></span>
+    </div>
+    <div class="form-check mb-3">
+        <input asp-for="LembrarDeMim" class="form-check-input" />
+        <label asp-for="LembrarDeMim" class="form-check-label"></label>
+    </div>
+    <button type="submit" class="btn btn-primary w-100"><i class="bi bi-box-arrow-in-right" aria-hidden="true"></i> Entrar</button>
+</form>
+
+<p class="text-center mt-3 mb-0">
+    Ainda não tem conta? <a asp-action="Cadastrar">Cadastrar veterinário</a>
+</p>
+
+@if (Configuracao.GetValue("Banco:DadosDeExemplo", false))
+{
+    <div class="dica-demo mt-4">
+        <strong><i class="bi bi-info-circle" aria-hidden="true"></i> Acesso de demonstração</strong><br />
+        E-mail: <code>@Petiatra.Web.Data.DadosDeExemplo.EmailDemo</code><br />
+        Senha: <code>@Petiatra.Web.Data.DadosDeExemplo.SenhaDemo</code>
+    </div>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,73 @@
+@model BuscaViewModel
+@{
+    ViewData["Title"] = "Busca";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Busca</h1>
+        <p>Tutores e pets pelo nome ou CPF. Atalho: <kbd>/</kbd> ou <kbd>Ctrl</kbd> + <kbd>K</kbd> em qualquer tela.</p>
+    </div>
+</div>
+
+<form class="filtros" method="get" role="search">
+    <div class="campo-busca">
+        <label for="termo" class="visually-hidden">Buscar tutor, pet ou CPF</label>
+        <input id="termo" name="termo" type="search" class="form-control" value="@Model.Termo" placeholder="Buscar tutor, pet ou CPF" autofocus />
+    </div>
+    <button type="submit" class="btn btn-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+</form>
+
+@if (Model.Termo.Length >= 2)
+{
+    @if (Model.Vazia)
+    {
+        <div class="card estado-vazio"><i class="bi bi-search" aria-hidden="true"></i>Nada encontrado para "@Model.Termo".</div>
+    }
+    else
+    {
+        <div class="row g-3">
+            <div class="col-lg-6">
+                <section class="card h-100" aria-labelledby="titulo-tutores">
+                    <div class="card-header"><h2 id="titulo-tutores"><i class="bi bi-people text-primary" aria-hidden="true"></i> Tutores (@Model.Tutores.Count)</h2></div>
+                    <ul class="lista-itens">
+                        @foreach (var tutor in Model.Tutores)
+                        {
+                            <li>
+                                <span class="inicial" aria-hidden="true"><i class="bi bi-person"></i></span>
+                                <div class="principal">
+                                    <a asp-controller="Tutores" asp-action="Detalhes" asp-route-id="@tutor.Id">@tutor.Nome</a>
+                                    <div class="texto-secundario">CPF @Documento.FormatarCpf(tutor.Cpf) · @tutor.Telefone</div>
+                                </div>
+                            </li>
+                        }
+                        @if (Model.Tutores.Count == 0)
+                        {
+                            <li class="texto-secundario">Nenhum tutor.</li>
+                        }
+                    </ul>
+                </section>
+            </div>
+            <div class="col-lg-6">
+                <section class="card h-100" aria-labelledby="titulo-pets">
+                    <div class="card-header"><h2 id="titulo-pets"><i class="bi bi-heart-pulse text-primary" aria-hidden="true"></i> Pets (@Model.Pets.Count)</h2></div>
+                    <ul class="lista-itens">
+                        @foreach (var pet in Model.Pets)
+                        {
+                            <li>
+                                <span class="inicial" aria-hidden="true">@pet.Nome.FirstOrDefault()</span>
+                                <div class="principal">
+                                    <a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@pet.Id">@pet.Nome</a>
+                                    <div class="texto-secundario">@pet.Especie.Rotulo() · tutor @pet.Tutor?.Nome</div>
+                                </div>
+                            </li>
+                        }
+                        @if (Model.Pets.Count == 0)
+                        {
+                            <li class="texto-secundario">Nenhum pet.</li>
+                        }
+                    </ul>
+                </section>
+            </div>
+        </div>
+    }
+}

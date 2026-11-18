@@ -1,0 +1,56 @@
+@model PetFormViewModel
+@* Campos do pet, usados no cadastro de pet e no passo 2 do "Novo atendimento". *@
+<div class="mb-3">
+    <label asp-for="Nome" class="form-label obrigatorio"></label>
+    <input asp-for="Nome" class="form-control" autocomplete="off" />
+    <span asp-validation-for="Nome"></span>
+</div>
+<div class="row g-3">
+    <div class="col-sm-6">
+        <label asp-for="Especie" class="form-label obrigatorio"></label>
+        <select asp-for="Especie" class="form-select">
+            <option value="">Escolha...</option>
+            @foreach (var especie in Enum.GetValues<Especie>())
+            {
+                <option value="@especie">@especie.Rotulo()</option>
+            }
+        </select>
+        <span asp-validation-for="Especie"></span>
+    </div>
+    <div class="col-sm-6">
+        <label asp-for="Sexo" class="form-label"></label>
+        <select asp-for="Sexo" class="form-select">
+            @foreach (var sexo in Enum.GetValues<Sexo>())
+            {
+                <option value="@sexo">@sexo.Rotulo()</option>
+            }
+        </select>
+    </div>
+</div>
+
+<details class="mais-detalhes mt-3" open="@(Model.TemDetalhes ? "open" : null)">
+    <summary>Mais detalhes (opcional)</summary>
+    <div class="row g-3">
+        <div class="col-sm-6">
+            <label asp-for="Raca" class="form-label"></label>
+            <input asp-for="Raca" class="form-control" placeholder="Ex.: SRD, Poodle, Siamês" />
+            <span asp-validation-for="Raca"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="DataNascimento" class="form-label"></label>
+            <input asp-for="DataNascimento" class="form-control" type="date" aria-describedby="ajuda-nascimento" />
+            <div id="ajuda-nascimento" class="form-text">Se não souber o dia exato, use uma data aproximada.</div>
+            <span asp-validation-for="DataNascimento"></span>
+        </div>
+        <div class="col-sm-6">
+            <label asp-for="PesoKg" class="form-label"></label>
+            <input asp-for="PesoKg" class="form-control" inputmode="decimal" placeholder="Ex.: 7,5" />
+            <span asp-validation-for="PesoKg"></span>
+        </div>
+        <div class="col-12">
+            <label asp-for="Observacoes" class="form-label"></label>
+            <textarea asp-for="Observacoes" class="form-control" rows="3" placeholder="Alergias, comportamento, cuidados especiais..."></textarea>
+            <span asp-validation-for="Observacoes"></span>
+        </div>
+    </div>
+</details>

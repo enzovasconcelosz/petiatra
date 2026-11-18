@@ -1,0 +1,113 @@
+@{
+    var controlador = ViewContext.RouteData.Values["controller"]?.ToString();
+    string Ativo(string nome) => controlador == nome ? "ativo" : string.Empty;
+    string? Atual(string nome) => controlador == nome ? "page" : null;
+    var logado = User.Identity?.IsAuthenticated == true;
+}
+<!DOCTYPE html>
+<html lang="pt-BR" data-bs-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"] · Petiatra</title>
+    <script>
+        (function () {
+            var tema = null;
+            try { tema = localStorage.getItem('petiatra-tema'); } catch (e) { }
+            var escuro = tema ? tema === 'escuro' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute('data-bs-theme', escuro ? 'dark' : 'light');
+        })();
+    </script>
+    <link rel="icon" href="~/favicon.ico" sizes="48x48" />
+    <link rel="icon" href="~/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="~/apple-touch-icon.png" />
+    <meta name="theme-color" content="#0f766e" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap-icons/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="@(logado ? "com-menu" : "")">
+    <a class="visually-hidden-focusable pular" href="#conteudo">Pular para o conteúdo</a>
+
+    @if (logado)
+    {
+        <header class="topo">
+            <div class="container-xl topo-interno">
+                <a class="marca" asp-controller="Painel" asp-action="Index" aria-label="Petiatra, ir para o painel">
+                    <img class="logo logo-claro" src="~/img/petiatra-logo.svg" alt="Petiatra" width="136" height="40" />
+                    <img class="logo logo-escuro" src="~/img/petiatra-logo-fundo-escuro.svg" alt="Petiatra" width="136" height="40" />
+                </a>
+
+                <nav class="menu-principal d-none d-lg-flex" aria-label="Menu principal">
+                    <a class="@Ativo("Painel")" aria-current="@Atual("Painel")" asp-controller="Painel" asp-action="Index">Painel</a>
+                    <a class="@Ativo("Tutores")" aria-current="@Atual("Tutores")" asp-controller="Tutores" asp-action="Index">Tutores</a>
+                    <a class="@Ativo("Pets")" aria-current="@Atual("Pets")" asp-controller="Pets" asp-action="Index">Pets</a>
+                    <a class="@Ativo("Consultas")" aria-current="@Atual("Consultas")" asp-controller="Consultas" asp-action="Index">Consultas</a>
+                    <a class="@Ativo("Vacinas")" aria-current="@Atual("Vacinas")" asp-controller="Vacinas" asp-action="Index">Vacinas</a>
+                </nav>
+
+                <div class="topo-acoes">
+                    <button type="button" class="btn btn-busca" data-abrir-busca aria-label="Busca rápida (atalho: barra ou Ctrl+K)">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <span class="d-none d-md-inline">Buscar tutor, pet ou CPF</span>
+                        <kbd class="d-none d-md-inline">/</kbd>
+                    </button>
+                    <a class="btn btn-primary" asp-controller="Atendimento" asp-action="Novo" aria-label="Novo atendimento">
+                        <i class="bi bi-plus-lg" aria-hidden="true"></i>
+                        <span class="d-none d-sm-inline">Novo atendimento</span>
+                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-usuario" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Menu do usuário">
+                            <span class="avatar" aria-hidden="true">@User.ObterPrimeiroNome().FirstOrDefault()</span>
+                            <span class="visually-hidden">@User.ObterNome()</span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><h2 class="dropdown-header">@User.ObterNome()</h2></li>
+                            <li>
+                                <button type="button" class="dropdown-item" data-alternar-tema>
+                                    <i class="bi bi-circle-half" aria-hidden="true"></i> Alternar tema claro/escuro
+                                </button>
+                            </li>
+                            <li>
+                                <button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-atalhos">
+                                    <i class="bi bi-keyboard" aria-hidden="true"></i> Atalhos de teclado
+                                </button>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <form asp-controller="Conta" asp-action="Sair" method="post">
+                                    <button type="submit" class="dropdown-item"><i class="bi bi-box-arrow-right" aria-hidden="true"></i> Sair</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </header>
+    }
+
+    <main id="conteudo" class="container-xl conteudo" tabindex="-1">
+        <partial name="_Mensagens" />
+        @RenderBody()
+    </main>
+
+    @if (logado)
+    {
+        <nav class="nav-inferior d-lg-none" aria-label="Menu principal">
+            <a class="@Ativo("Painel")" aria-current="@Atual("Painel")" asp-controller="Painel" asp-action="Index"><i class="bi bi-house" aria-hidden="true"></i>Início</a>
+            <a class="@Ativo("Tutores")" aria-current="@Atual("Tutores")" asp-controller="Tutores" asp-action="Index"><i class="bi bi-people" aria-hidden="true"></i>Tutores</a>
+            <a class="@Ativo("Pets")" aria-current="@Atual("Pets")" asp-controller="Pets" asp-action="Index"><i class="bi bi-heart-pulse" aria-hidden="true"></i>Pets</a>
+            <a class="@Ativo("Consultas")" aria-current="@Atual("Consultas")" asp-controller="Consultas" asp-action="Index"><i class="bi bi-calendar-week" aria-hidden="true"></i>Consultas</a>
+            <a class="@Ativo("Vacinas")" aria-current="@Atual("Vacinas")" asp-controller="Vacinas" asp-action="Index"><i class="bi bi-shield-check" aria-hidden="true"></i>Vacinas</a>
+        </nav>
+
+        <partial name="_BuscaRapida" />
+        <partial name="_Atalhos" />
+    }
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

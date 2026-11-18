@@ -1,0 +1,66 @@
+@model TutorFormViewModel
+@{
+    var novo = Model.Id == 0;
+    ViewData["Title"] = novo ? "Novo tutor" : $"Editar {Model.Nome}";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Index">Tutores</a></div>
+        <h1>@ViewData["Title"]</h1>
+        <p>Campos com * são obrigatórios.</p>
+    </div>
+</div>
+
+<div class="card cartao-formulario">
+    <div class="card-body">
+        <form asp-action="@(novo ? "Criar" : "Editar")" asp-route-id="@(novo ? null : Model.Id.ToString())" method="post" novalidate>
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+            <div class="mb-3">
+                <label asp-for="Nome" class="form-label obrigatorio"></label>
+                <input asp-for="Nome" class="form-control" autocomplete="off" autofocus />
+                <span asp-validation-for="Nome"></span>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label asp-for="Cpf" class="form-label obrigatorio"></label>
+                    <input asp-for="Cpf" class="form-control" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" aria-describedby="ajuda-cpf" />
+                    <div id="ajuda-cpf" class="form-text">Pode digitar com ou sem pontos.</div>
+                    <span asp-validation-for="Cpf"></span>
+                </div>
+                <div class="col-sm-6">
+                    <label asp-for="Telefone" class="form-label obrigatorio"></label>
+                    <input asp-for="Telefone" class="form-control" type="tel" inputmode="tel" placeholder="(43) 99999-0000" />
+                    <span asp-validation-for="Telefone"></span>
+                </div>
+            </div>
+
+            <details class="mais-detalhes mt-3" open="@(Model.TemDetalhes ? "open" : null)">
+                <summary>Mais detalhes (opcional)</summary>
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" type="email" inputmode="email" />
+                    <span asp-validation-for="Email"></span>
+                </div>
+                <div>
+                    <label asp-for="Endereco" class="form-label"></label>
+                    <input asp-for="Endereco" class="form-control" placeholder="Rua, número, bairro e cidade" />
+                    <span asp-validation-for="Endereco"></span>
+                </div>
+            </details>
+
+            <div class="barra-botoes">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg" aria-hidden="true"></i> Salvar</button>
+                @if (novo)
+                {
+                    <button type="submit" name="acao" value="outro" class="btn btn-outline-primary">Salvar e cadastrar outro</button>
+                }
+                <a class="btn btn-link" href="@(novo ? Url.Action("Index") : Url.Action("Detalhes", new { id = Model.Id }))">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

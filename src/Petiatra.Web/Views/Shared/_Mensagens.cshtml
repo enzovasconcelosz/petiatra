@@ -1,0 +1,16 @@
+@if (TempData[AppController.ChaveSucesso] is string sucesso)
+{
+    <div class="alert alert-success alert-dismissible fade show d-flex gap-2 align-items-start" role="status">
+        <i class="bi bi-check-circle-fill" aria-hidden="true"></i>
+        <div>@sucesso</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}
+@if (TempData[AppController.ChaveErro] is string erro)
+{
+    <div class="alert alert-danger alert-dismissible fade show d-flex gap-2 align-items-start" role="alert">
+        <i class="bi bi-exclamation-triangle-fill" aria-hidden="true"></i>
+        <div>@erro</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+    </div>
+}

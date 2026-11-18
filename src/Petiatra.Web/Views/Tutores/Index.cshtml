@@ -1,0 +1,77 @@
+@model TutoresIndexViewModel
+@{
+    ViewData["Title"] = "Tutores";
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Tutores</h1>
+        <p>Donos e responsáveis pelos pets.</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-action="Criar" data-atalho-novo>
+            <i class="bi bi-person-plus" aria-hidden="true"></i> Novo tutor <kbd class="d-none d-lg-inline">N</kbd>
+        </a>
+    </div>
+</div>
+
+<form class="filtros" method="get" role="search">
+    <div class="campo-busca">
+        <label for="busca" class="visually-hidden">Buscar por nome, CPF ou telefone</label>
+        <input id="busca" name="busca" type="search" class="form-control" value="@Model.Busca" placeholder="Buscar por nome, CPF ou telefone" />
+    </div>
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+    @if (!string.IsNullOrWhiteSpace(Model.Busca))
+    {
+        <a class="btn btn-link" asp-action="Index">Limpar</a>
+    }
+</form>
+
+@if (Model.Pagina.TotalItens == 0)
+{
+    <div class="card estado-vazio">
+        <i class="bi bi-people" aria-hidden="true"></i>
+        @(string.IsNullOrWhiteSpace(Model.Busca) ? "Nenhum tutor cadastrado ainda." : $"Nenhum tutor encontrado para \"{Model.Busca}\".")
+        <div class="mt-2"><a asp-action="Criar">Cadastrar tutor</a></div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">CPF</th>
+                    <th scope="col">Telefone</th>
+                    <th scope="col">Pets</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var tutor in Model.Pagina.Itens)
+                {
+                    <tr>
+                        <td class="td-principal"><a class="fw-semibold" asp-action="Detalhes" asp-route-id="@tutor.Id">@tutor.Nome</a></td>
+                        <td data-rotulo="CPF">@Documento.FormatarCpf(tutor.Cpf)</td>
+                        <td data-rotulo="Telefone"><a href="tel:@Documento.SomenteDigitos(tutor.Telefone)">@tutor.Telefone</a></td>
+                        <td data-rotulo="Pets">
+                            @if (tutor.Pets.Count == 0)
+                            {
+                                <span class="texto-secundario">Nenhum</span>
+                            }
+                            else
+                            {
+                                @string.Join(", ", tutor.Pets.OrderBy(p => p.Nome).Select(p => p.Nome))
+                            }
+                        </td>
+                        <td class="td-acoes">
+                            <a class="btn btn-sm btn-outline-secondary" asp-action="Editar" asp-route-id="@tutor.Id" aria-label="Editar @tutor.Nome"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalhes" asp-route-id="@tutor.Id" aria-label="Abrir @tutor.Nome">Abrir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Paginacao" model="Model.Pagina" />
+}

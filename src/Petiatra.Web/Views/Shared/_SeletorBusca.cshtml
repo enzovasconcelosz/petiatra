@@ -1,0 +1,15 @@
+@model SeletorBuscaViewModel
+@* Campo de seleção com busca: o usuário digita e escolhe; o id escolhido vai no campo escondido. *@
+<div class="seletor" data-seletor data-url="@Model.Url">
+    <label class="form-label @(Model.Obrigatorio ? "obrigatorio" : "")" for="@(Model.Campo)_texto">@Model.Rotulo</label>
+    <input type="hidden" id="@Model.Campo.Replace('.', '_')" name="@Model.Campo" value="@(Model.Valor > 0 ? Model.Valor.ToString() : "")" data-seletor-valor
+           data-val="@(Model.Obrigatorio ? "true" : "false")" data-val-required="@Model.MensagemObrigatorio"
+           class="@(ViewData.ModelState[Model.Campo]?.Errors.Count > 0 ? "input-validation-error" : "")" />
+    <input type="search" id="@(Model.Campo)_texto" class="form-control" value="@Model.Texto" autocomplete="off"
+           placeholder="@Model.Dica" data-seletor-texto
+           role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="@(Model.Campo)_lista"
+           aria-describedby="@(Model.Campo)_ajuda" />
+    <ul id="@(Model.Campo)_lista" class="seletor-lista" role="listbox" hidden></ul>
+    <div id="@(Model.Campo)_ajuda" class="form-text">@Model.Ajuda</div>
+    @Html.ValidationMessage(Model.Campo)
+</div>

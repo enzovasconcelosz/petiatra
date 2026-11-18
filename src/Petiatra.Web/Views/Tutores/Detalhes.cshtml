@@ -1,0 +1,62 @@
+@model Tutor
+@inject TimeProvider Relogio
+@{
+    ViewData["Title"] = Model.Nome;
+    var hoje = DateOnly.FromDateTime(Relogio.GetLocalNow().DateTime);
+}
+<div class="cabecalho-pagina">
+    <div>
+        <div class="migalhas"><a asp-action="Index">Tutores</a></div>
+        <h1>@Model.Nome</h1>
+        <p>Cliente desde @Formatos.Data(Model.CriadoEm)</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-controller="Atendimento" asp-action="Novo" asp-route-tutorId="@Model.Id"><i class="bi bi-plus-lg" aria-hidden="true"></i> Novo atendimento</a>
+        <a class="btn btn-outline-secondary" asp-action="Editar" asp-route-id="@Model.Id"><i class="bi bi-pencil" aria-hidden="true"></i> Editar</a>
+        <a class="btn btn-outline-danger" asp-action="Excluir" asp-route-id="@Model.Id"><i class="bi bi-trash3" aria-hidden="true"></i> Excluir</a>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <section class="card h-100" aria-labelledby="titulo-contato">
+            <div class="card-header"><h2 id="titulo-contato"><i class="bi bi-person-vcard text-primary" aria-hidden="true"></i> Dados de contato</h2></div>
+            <div class="card-body">
+                <dl class="dados">
+                    <dt>CPF</dt><dd>@Documento.FormatarCpf(Model.Cpf)</dd>
+                    <dt>Telefone</dt><dd><a href="tel:@Documento.SomenteDigitos(Model.Telefone)">@Model.Telefone</a></dd>
+                    <dt>E-mail</dt><dd>@if (Model.Email is null) { <span class="texto-secundario">Não informado</span> } else { <a href="mailto:@Model.Email">@Model.Email</a> }</dd>
+                    <dt>Endereço</dt><dd>@(Model.Endereco ?? "Não informado")</dd>
+                </dl>
+            </div>
+        </section>
+    </div>
+    <div class="col-lg-7">
+        <section class="card h-100" aria-labelledby="titulo-pets">
+            <div class="card-header">
+                <h2 id="titulo-pets"><i class="bi bi-heart-pulse text-primary" aria-hidden="true"></i> Pets (@Model.Pets.Count)</h2>
+                <a class="btn btn-sm btn-outline-primary" asp-controller="Pets" asp-action="Criar" asp-route-tutorId="@Model.Id" data-atalho-novo><i class="bi bi-plus-lg" aria-hidden="true"></i> Adicionar pet</a>
+            </div>
+            @if (Model.Pets.Count == 0)
+            {
+                <div class="estado-vazio"><i class="bi bi-heart" aria-hidden="true"></i>Nenhum pet cadastrado para este tutor.</div>
+            }
+            else
+            {
+                <ul class="lista-itens">
+                    @foreach (var pet in Model.Pets)
+                    {
+                        <li>
+                            <span class="inicial" aria-hidden="true">@pet.Nome.FirstOrDefault()</span>
+                            <div class="principal">
+                                <a asp-controller="Pets" asp-action="Detalhes" asp-route-id="@pet.Id">@pet.Nome</a>
+                                <div class="texto-secundario">@pet.Especie.Rotulo()@(pet.Raca is null ? "" : $" · {pet.Raca}") · @pet.CalcularIdade(hoje)</div>
+                            </div>
+                            <a class="btn btn-sm btn-outline-secondary" asp-controller="Consultas" asp-action="Criar" asp-route-petId="@pet.Id"><i class="bi bi-calendar-plus" aria-hidden="true"></i><span class="d-none d-sm-inline">Agendar</span></a>
+                        </li>
+                    }
+                </ul>
+            }
+        </section>
+    </div>
+</div>

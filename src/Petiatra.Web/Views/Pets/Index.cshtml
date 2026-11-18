@@ -1,0 +1,86 @@
+@model PetsIndexViewModel
+@inject TimeProvider Relogio
+@{
+    ViewData["Title"] = "Pets";
+    var hoje = DateOnly.FromDateTime(Relogio.GetLocalNow().DateTime);
+    var filtrando = !string.IsNullOrWhiteSpace(Model.Busca) || Model.Especie is not null;
+}
+<div class="cabecalho-pagina">
+    <div>
+        <h1>Pets</h1>
+        <p>Todos os animais atendidos pela clínica.</p>
+    </div>
+    <div class="acoes">
+        <a class="btn btn-primary" asp-action="Criar" data-atalho-novo>
+            <i class="bi bi-plus-lg" aria-hidden="true"></i> Novo pet <kbd class="d-none d-lg-inline">N</kbd>
+        </a>
+    </div>
+</div>
+
+<form class="filtros" method="get" role="search">
+    <div class="campo-busca">
+        <label for="busca" class="visually-hidden">Buscar pelo nome do pet, do tutor ou CPF</label>
+        <input id="busca" name="busca" type="search" class="form-control" value="@Model.Busca" placeholder="Nome do pet, do tutor ou CPF" />
+    </div>
+    <div>
+        <label for="especie" class="visually-hidden">Espécie</label>
+        <select id="especie" name="especie" class="form-select" onchange="this.form.submit()">
+            <option value="">Todas as espécies</option>
+            @foreach (var especie in Enum.GetValues<Especie>())
+            {
+                <option value="@especie" selected="@(Model.Especie == especie)">@especie.Rotulo()</option>
+            }
+        </select>
+    </div>
+    <button type="submit" class="btn btn-outline-primary"><i class="bi bi-search" aria-hidden="true"></i> Buscar</button>
+    @if (filtrando)
+    {
+        <a class="btn btn-link" asp-action="Index">Limpar</a>
+    }
+</form>
+
+@if (Model.Pagina.TotalItens == 0)
+{
+    <div class="card estado-vazio">
+        <i class="bi bi-heart" aria-hidden="true"></i>
+        @(filtrando ? "Nenhum pet encontrado com esses filtros." : "Nenhum pet cadastrado ainda.")
+        <div class="mt-2"><a asp-action="Criar">Cadastrar pet</a></div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <table class="table tabela-cartoes">
+            <thead>
+                <tr>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Espécie</th>
+                    <th scope="col">Idade</th>
+                    <th scope="col">Tutor</th>
+                    <th scope="col" class="text-end"><span class="visually-hidden">Ações</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pet in Model.Pagina.Itens)
+                {
+                    <tr>
+                        <td class="td-principal">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="inicial" aria-hidden="true">@pet.Nome.FirstOrDefault()</span>
+                                <a class="fw-semibold" asp-action="Detalhes" asp-route-id="@pet.Id">@pet.Nome</a>
+                            </div>
+                        </td>
+                        <td data-rotulo="Espécie">@pet.Especie.Rotulo()@(pet.Raca is null ? "" : $" · {pet.Raca}")</td>
+                        <td data-rotulo="Idade">@pet.CalcularIdade(hoje)</td>
+                        <td data-rotulo="Tutor"><a asp-controller="Tutores" asp-action="Detalhes" asp-route-id="@pet.TutorId">@pet.Tutor?.Nome</a></td>
+                        <td class="td-acoes">
+                            <a class="btn btn-sm btn-outline-secondary" asp-controller="Consultas" asp-action="Criar" asp-route-petId="@pet.Id" aria-label="Agendar consulta para @pet.Nome"><i class="bi bi-calendar-plus" aria-hidden="true"></i> Agendar</a>
+                            <a class="btn btn-sm btn-outline-primary" asp-action="Detalhes" asp-route-id="@pet.Id" aria-label="Abrir ficha de @pet.Nome">Ficha</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <partial name="_Paginacao" model="Model.Pagina" />
+}
