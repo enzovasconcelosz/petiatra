@@ -42,8 +42,8 @@ O Petiatra ajuda clínicas veterinárias de pequeno porte a:
 Pré-requisito: [.NET SDK 10](https://dotnet.microsoft.com/download/dotnet/10.0).
 
 ```bash
-git clone <URL_DO_REPOSITORIO>
-cd sistema-veterinario
+git clone https://github.com/enzovasconcelosz/petiatra.git
+cd petiatra
 dotnet run --project src/Petiatra.Web
 ```
 
